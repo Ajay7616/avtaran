@@ -2,7 +2,7 @@ import React from "react";
 
 function CtaStrip() {
   return (
-    <section className="pt-[110px] pb-0">
+    <section className="py-[110px]">
       <div className="wrap">
         <div className="reveal bg-grad-cta rounded-[26px] p-14 mob:p-6 text-center relative overflow-hidden">
           <h2 className="text-teal-900 text-[2.3rem]">Ready to ascend?</h2>
