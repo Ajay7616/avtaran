@@ -41,6 +41,27 @@ app.use(
 // CORS
 // ==============================
 
+// const allowedOrigins = [process.env.CLIENT_URL].filter(Boolean);
+
+// app.use(
+//   cors({
+//     origin: (origin, callback) => {
+//       // Allow Postman/server-to-server requests
+//       if (!origin) {
+//         return callback(null, true);
+//       }
+
+//       if (allowedOrigins.includes(origin)) {
+//         return callback(null, true);
+//       }
+
+//       return callback(new Error("Not allowed by CORS"));
+//     },
+
+//     credentials: true,
+//   }),
+// );
+
 const allowedOrigins = [
   process.env.CLIENT_URL,
   "http://localhost:3000",
@@ -73,6 +94,7 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
+
 
 app.use(cookieParser());
 
