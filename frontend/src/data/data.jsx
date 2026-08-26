@@ -1,6 +1,6 @@
 import React from "react";
 
-export const NAV_SERVICE_LINKS = [
+const NAV_SERVICE_LINKS = [
   {
     href: "/services/forex",
     title: "Foreign Exchange / RBI",
