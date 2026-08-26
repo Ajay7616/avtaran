@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import LocationPin from "./LocationPin";
-import { INDIA_CITIES, INTL_LOCATIONS } from "../data/data";
+import { INDIA_CITIES, INTL_LOCATIONS } from "../../data/data";
 
 function Presence() {
   const [panel, setPanel] = useState("india");

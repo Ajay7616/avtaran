@@ -5,7 +5,7 @@ import ValuesGrid from "../components/Common/ValuesGrid";
 import CtaBanner from "../components/Common/CtaBanner";
 import CitizenshipHero from "../components/CitizenPage/Citizenshiphero";
 import CitizenshipRegions from "../components/CitizenPage/Citizenshipregions";
-import { CITIZENSHIP_VALUES } from "../components/data/Citizenshipdata";
+import { CITIZENSHIP_VALUES } from "../data/Citizenshipdata";
 import useNavScroll from "../hooks/useNavScroll";
 import useScrollReveal from "../hooks/useScrollReveal";
 

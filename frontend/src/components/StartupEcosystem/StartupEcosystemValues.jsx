@@ -1,5 +1,5 @@
 import React from "react";
-import { SE_VALUES } from "../data/Startupecosystemdata";
+import { SE_VALUES } from "../../data/Startupecosystemdata";
 
 function StarIcon() {
   return (

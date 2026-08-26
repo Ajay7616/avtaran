@@ -5,7 +5,7 @@ import ValuesGrid from "../components/Common/ValuesGrid";
 import CtaBanner from "../components/Common/CtaBanner";
 import InvestmentBankingHero from "../components/InvestmentBanking/Investmentbankinghero";
 import InvestmentBankingServices from "../components/InvestmentBanking/InvestmentBankingservices";
-import { IB_VALUES } from "../components/data/Investmentbankingdata";
+import { IB_VALUES } from "../data/Investmentbankingdata";
 import useNavScroll from "../hooks/useNavScroll";
 import useScrollReveal from "../hooks/useScrollReveal";
 

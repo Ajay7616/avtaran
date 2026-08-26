@@ -1,5 +1,5 @@
 import React from "react";
-import { FOREX_SERVICES } from "../data/Forexdata";
+import { FOREX_SERVICES } from "../../data/Forexdata";
 
 function ForexServices() {
   return (

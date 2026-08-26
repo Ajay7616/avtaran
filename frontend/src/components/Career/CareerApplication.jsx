@@ -1,7 +1,13 @@
 import React, { useRef, useState } from "react";
+import { submitCareerApplication } from "../../api/api";
 
 function CareerApplication() {
   const [file, setFile] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [formMessage, setFormMessage] = useState({
+    type: "",
+    text: "",
+  });
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files?.[0];
@@ -26,18 +32,58 @@ function CareerApplication() {
     setFile(selectedFile);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Connect this form to your backend/API here.
-    console.log("Application submitted");
+    setFormMessage({
+      type: "",
+      text: "",
+    });
+
+    if (!file) {
+      setFormMessage({
+        type: "error",
+        text: "Please upload your CV / Resume.",
+      });
+
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+
+      const form = e.currentTarget;
+
+      const formData = new FormData(form);
+
+      await submitCareerApplication(formData);
+
+      setFormMessage({
+        type: "success",
+        text: "Your application has been submitted successfully. We will review your application and contact you if there is a suitable opportunity.",
+      });
+
+      form.reset();
+
+      setFile(null);
+    } catch (error) {
+      console.error("Career application error:", error);
+
+      setFormMessage({
+        type: "error",
+        text:
+          error.message ||
+          "Unable to submit your application. Please try again.",
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <section className="py-[90px] bg-cream">
       <div className="wrap">
         <div className="grid grid-cols-[.8fr_1.2fr] tab:grid-cols-1 gap-14 items-start">
-
           {/* Left content */}
           <div className="reveal sticky top-[110px] tab:static">
             <span className="eyebrow">Submit your Application</span>
@@ -52,10 +98,9 @@ function CareerApplication() {
             </p>
 
             <p className="text-muted text-[1.02rem] mt-4 leading-7">
-              If you are excited about working with Avtaran Capital, share
-              your details and resume with us. Our team will review your
-              application and get in touch when there is a suitable
-              opportunity.
+              If you are excited about working with Avtaran Capital, share your
+              details and resume with us. Our team will review your application
+              and get in touch when there is a suitable opportunity.
             </p>
 
             <div className="mt-8 p-6 rounded-2xl bg-grad-teal text-white shadow-brand-md">
@@ -73,10 +118,20 @@ function CareerApplication() {
           {/* Application form */}
           <div className="reveal cform">
             <form onSubmit={handleSubmit}>
+              {formMessage.type && (
+                <div
+                  className={`mb-5 rounded-xl px-5 py-4 ${
+                    formMessage.type === "success"
+                      ? "bg-green-50 text-green-800 border border-green-200"
+                      : "bg-red-50 text-red-800 border border-red-200"
+                  }`}
+                >
+                  {formMessage.text}
+                </div>
+              )}
 
               {/* Name */}
               <div className="grid grid-cols-2 tab:grid-cols-1 gap-5">
-
                 <div>
                   <label
                     htmlFor="firstName"
@@ -112,13 +167,10 @@ function CareerApplication() {
                     className="field-input"
                   />
                 </div>
-
               </div>
-
 
               {/* Email / Phone */}
               <div className="grid grid-cols-2 tab:grid-cols-1 gap-5 mt-5">
-
                 <div>
                   <label
                     htmlFor="email"
@@ -154,9 +206,7 @@ function CareerApplication() {
                     className="field-input"
                   />
                 </div>
-
               </div>
-
 
               {/* Position */}
               <div className="mt-5">
@@ -177,7 +227,6 @@ function CareerApplication() {
                 />
               </div>
 
-
               {/* Portfolio */}
               <div className="mt-5">
                 <label
@@ -195,7 +244,6 @@ function CareerApplication() {
                   className="field-input"
                 />
               </div>
-
 
               {/* CV Upload */}
               <div className="mt-5">
@@ -248,7 +296,6 @@ function CareerApplication() {
                 </label>
               </div>
 
-
               {/* Cover Letter */}
               <div className="mt-5">
                 <label
@@ -267,15 +314,16 @@ function CareerApplication() {
                 />
               </div>
 
-
               {/* Submit */}
               <button
                 type="submit"
-                className="btn btn-gold mt-7 w-full justify-center"
+                disabled={submitting}
+                className="btn btn-gold mt-7 w-full justify-center disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                Submit Application
+                {submitting
+                  ? "Submitting Application..."
+                  : "Submit Application"}
               </button>
-
             </form>
           </div>
         </div>

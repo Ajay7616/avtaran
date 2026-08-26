@@ -1,5 +1,5 @@
 import React from "react";
-import { CA_SERVICES } from "../data/corporateAdvisoryData";
+import { CA_SERVICES } from "../../data/corporateAdvisoryData";
 
 function CorporateAdvisoryServices() {
   return (

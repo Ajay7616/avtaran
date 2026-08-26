@@ -1,5 +1,5 @@
 import React from "react";
-import { BS_REGIONS } from "../data/Businesssetupdata";
+import { BS_REGIONS } from "../../data/Businesssetupdata";
 
 function BusinessSetupRegions() {
   return (

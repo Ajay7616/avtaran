@@ -1,5 +1,5 @@
 import React from "react";
-import { IB_SERVICES } from "../data/Investmentbankingdata";
+import { IB_SERVICES } from "../../data/Investmentbankingdata";
 
 function InvestmentBankingServices() {
   return (

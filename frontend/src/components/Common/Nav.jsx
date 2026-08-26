@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import LOGO_SRC from "../../assets/logo.png";
-import { NAV_SERVICE_LINKS } from "../data/data";
+import { NAV_SERVICE_LINKS } from "../../data/data";
 
 function Nav({ navOpen, setNavOpen, scrolled }) {
   const navRef = useRef(null);

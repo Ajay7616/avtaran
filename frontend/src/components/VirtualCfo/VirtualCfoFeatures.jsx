@@ -1,5 +1,5 @@
 import React from "react";
-import { VCFO_FEATURES } from "../data/VirtualCfoData";
+import { VCFO_FEATURES } from "../../data/VirtualCfoData";
 
 function VirtualCfoFeatures() {
   return (

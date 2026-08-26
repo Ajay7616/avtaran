@@ -4,6 +4,7 @@ import HomePage from "./pages/HomePage";
 import ForexPage from "./pages/ForexPage";
 import CorporateAdvisoryPage from "./pages/CorporateAdvisoryPage";
 import ScrollToTop from "./components/Common/ScrollToTop";
+import ProtectedRoute from "./components/Common/Protectedroute";
 import InvestmentBankingPage from "./pages/Investmentbankingpage";
 import CitizenshipPage from "./pages/Citizenshippage";
 import FamilyOfficePage from "./pages/Familyofficepage";
@@ -30,7 +31,9 @@ export default function App() {
         <Route path="/services/virtual-cfo" element={<VirtualCfoPage />} />
         <Route path="/career" element={<CareerPage />} />
         <Route path="/admin/login" element={<AdminLoginPage />} />
-        <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

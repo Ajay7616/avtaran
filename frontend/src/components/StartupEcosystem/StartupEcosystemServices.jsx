@@ -1,5 +1,5 @@
 import React from "react";
-import { SE_SERVICE_CATEGORIES } from "../data/Startupecosystemdata";
+import { SE_SERVICE_CATEGORIES } from "../../data/Startupecosystemdata";
 
 function StartupEcosystemServices() {
   return (

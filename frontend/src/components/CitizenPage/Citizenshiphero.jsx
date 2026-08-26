@@ -1,5 +1,5 @@
 import React from "react";
-import { CITIZENSHIP_NOTE } from "../data/Citizenshipdata";
+import { CITIZENSHIP_NOTE } from "../../data/Citizenshipdata";
 
 function CitizenshipHero() {
   return (

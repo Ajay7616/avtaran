@@ -1,5 +1,5 @@
 import React from "react";
-import { TEAM } from "../data/data";
+import { TEAM } from "../../data/data";
 
 function Leadership() {
   return (

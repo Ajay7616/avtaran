@@ -5,7 +5,7 @@ import ValuesGrid from "../components/Common/ValuesGrid";
 import CtaBanner from "../components/Common/CtaBanner";
 import BusinessSetupHero from "../components/BusinessSetup/Businesssetuphero";
 import BusinessSetupRegions from "../components/BusinessSetup/Businesssetupregions";
-import { BS_VALUES } from "../components/data/Businesssetupdata";
+import { BS_VALUES } from "../data/Businesssetupdata";
 import useNavScroll from "../hooks/useNavScroll";
 import useScrollReveal from "../hooks/useScrollReveal";
 

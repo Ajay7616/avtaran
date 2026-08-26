@@ -1,5 +1,5 @@
 import React from "react";
-import { FO_SERVICES } from "../data/Familyofficedata";
+import { FO_SERVICES } from "../../data/Familyofficedata";
 
 function FamilyOfficeServices() {
   return (

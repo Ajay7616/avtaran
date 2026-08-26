@@ -5,7 +5,7 @@ import ValuesGrid from "../components/Common/ValuesGrid";
 import CtaBanner from "../components/Common/CtaBanner";
 import CorporateAdvisoryHero from "../components/Corporate/CorporateAdvisoryHero";
 import CorporateAdvisoryServices from "../components/Corporate/CorporateAdvisoryServices";
-import { CA_VALUES } from "../components/data/corporateAdvisoryData";
+import { CA_VALUES } from "../data/corporateAdvisoryData";
 import useNavScroll from "../hooks/useNavScroll";
 import useScrollReveal from "../hooks/useScrollReveal";
 

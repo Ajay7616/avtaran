@@ -5,7 +5,7 @@ import ValuesGrid from "../components/Common/ValuesGrid";
 import CtaBanner from "../components/Common/CtaBanner";
 import FamilyOfficeHero from "../components/FamilyOffice/Familyofficehero";
 import FamilyOfficeServices from "../components/FamilyOffice/FamilyOfficeServices";
-import { FO_VALUES } from "../components/data/Familyofficedata";
+import { FO_VALUES } from "../data/Familyofficedata";
 import useNavScroll from "../hooks/useNavScroll";
 import useScrollReveal from "../hooks/useScrollReveal";
 

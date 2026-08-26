@@ -1,5 +1,5 @@
 import React from "react";
-import { SE_WHY_US, SE_INDUSTRIES } from "../data/Startupecosystemdata";
+import { SE_WHY_US, SE_INDUSTRIES } from "../../data/Startupecosystemdata";
 
 function StartupEcosystemWhyUs() {
   return (
