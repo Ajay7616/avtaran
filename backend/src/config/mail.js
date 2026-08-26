@@ -60,7 +60,13 @@
 
 const { Resend } = require("resend");
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const apiKey = process.env.RESEND_API_KEY;
+
+if (!apiKey) {
+  console.error("RESEND_API_KEY is missing");
+}
+
+const resend = apiKey ? new Resend(apiKey) : null;
 
 const sendEmail = async ({
   to,
@@ -68,9 +74,13 @@ const sendEmail = async ({
   html,
   attachments = [],
 }) => {
+  if (!resend) {
+    throw new Error("RESEND_API_KEY is not configured");
+  }
+
   try {
     const result = await resend.emails.send({
-      from: "Avtaran Capital <noreply@yourdomain.com>",
+      from: process.env.EMAIL_FROM,
       to,
       subject,
       html,
@@ -81,7 +91,7 @@ const sendEmail = async ({
       throw result.error;
     }
 
-    console.log("Email sent:");
+    console.log("Email sent:", result.data?.id);
 
     return result.data;
   } catch (error) {
