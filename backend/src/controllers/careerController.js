@@ -451,23 +451,6 @@ const createCareerApplication = async (req, res) => {
             >
               ${portfolioButton}
 
-              ${
-                portfolioUrl
-                  ? `
-                    <div
-                      style="
-                        margin-top:12px;
-                        color:#68757a;
-                        font-size:12px;
-                        word-break:break-all;
-                      "
-                    >
-                      ${safePortfolio}
-                    </div>
-                  `
-                  : ""
-              }
-
             </div>
 
             <!-- Spacer -->
@@ -550,39 +533,9 @@ const createCareerApplication = async (req, res) => {
                     ${resumeName}
                   </div>
 
-                  <div
-                    style="
-                      color:#bfcdd1;
-                      font-size:13px;
-                      line-height:1.6;
-                    "
-                  >
-                    ${resumeType}
-                    &nbsp; • &nbsp;
-                    ${resumeSize} MB
-                  </div>
-
                 </td>
               </tr>
             </table>
-
-            <!-- Application ID -->
-
-            <div
-              style="
-                margin-top:30px;
-                padding-top:22px;
-                border-top:1px solid #e3ddd1;
-                color:#7a8589;
-                font-size:12px;
-                line-height:1.6;
-              "
-            >
-              <strong style="color:#46545a;">
-                Application ID:
-              </strong>
-              ${application._id}
-            </div>
 
           </td>
         </tr>

@@ -453,29 +453,6 @@ const createContact = async (req, res) => {
             <!-- APPLICATION ID -->
             <!-- ============================= -->
 
-            <div
-              style="
-                margin-top:30px;
-                padding-top:22px;
-                border-top:1px solid #e3ddd1;
-                color:#7a8589;
-                font-size:12px;
-                line-height:1.6;
-              "
-            >
-
-              <strong
-                style="
-                  color:#46545a;
-                "
-              >
-                Enquiry ID:
-              </strong>
-
-              ${contact._id}
-
-            </div>
-
 
           </td>
 
@@ -841,30 +818,6 @@ const createContact = async (req, res) => {
             </div>
 
 
-            <!-- REFERENCE -->
-
-            <div
-              style="
-                margin-top:30px;
-                padding-top:22px;
-                border-top:1px solid #e3ddd1;
-                color:#7a8589;
-                font-size:12px;
-                line-height:1.6;
-              "
-            >
-
-              <strong
-                style="
-                  color:#46545a;
-                "
-              >
-                Enquiry Reference:
-              </strong>
-
-              ${contact._id}
-
-            </div>
 
 
             <!-- SIGNATURE -->
