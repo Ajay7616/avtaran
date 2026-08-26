@@ -1,5 +1,3 @@
-import React from "react";
-
 /* Content for the Foreign Exchange / RBI detail page. */
 
 export const FOREX_VALUES = [

@@ -309,9 +309,14 @@ function Contact() {
               }
             ></textarea>
           </div>
-          <button type="submit" className="btn btn-gold w-full justify-center">
-            Send Message &rarr;
+          <button
+            type="submit"
+            disabled={submitting}
+            className="btn btn-gold w-full justify-center disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {submitting ? "Sending..." : "Send Message →"}
           </button>
+
           <p className="text-[.8rem] text-muted mt-1.5">
             By submitting, you agree to be contacted by Avtaran Capital. We
             respect your privacy.
