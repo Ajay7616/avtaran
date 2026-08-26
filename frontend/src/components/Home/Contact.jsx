@@ -6,6 +6,7 @@ function Contact() {
   const emailRef = useRef(null);
   const messageRef = useRef(null);
   const formRef = useRef(null);
+
   const [submitting, setSubmitting] = useState(false);
 
   const [errFields, setErrFields] = useState({
@@ -13,50 +14,62 @@ function Contact() {
     email: false,
     message: false,
   });
-  const [formMsg, setFormMsg] = useState({ type: null, text: "" }); // type: 'ok' | 'err' | null
+
+  // type: "ok" | "err" | null
+  const [formMsg, setFormMsg] = useState({
+    type: null,
+    text: "",
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Clear previous message
     setFormMsg({
-      type: "",
+      type: null,
       text: "",
     });
 
     const form = e.currentTarget;
-
     const formData = new FormData(form);
 
-    const name = formData.get("name")?.trim();
-    const email = formData.get("email")?.trim();
-    const message = formData.get("message")?.trim();
+    const name = formData.get("name")?.trim() || "";
+    const email = formData.get("email")?.trim() || "";
+    const message = formData.get("message")?.trim() || "";
 
-    const errors = {};
+    // Validate required fields
+    const errors = {
+      name: !name,
+      email: !email,
+      message: !message,
+    };
 
-    if (!name) {
-      errors.name = true;
-    }
-
-    if (!email) {
-      errors.email = true;
-    }
-
-    if (!message) {
-      errors.message = true;
-    }
-
-    if (Object.keys(errors).length > 0) {
+    if (errors.name || errors.email || errors.message) {
       setErrFields(errors);
 
       setFormMsg({
-        type: "error",
+        type: "err",
         text: "Please fill in all required fields.",
       });
+
+      // Focus first invalid field
+      if (errors.name) {
+        nameRef.current?.focus();
+      } else if (errors.email) {
+        emailRef.current?.focus();
+      } else if (errors.message) {
+        messageRef.current?.focus();
+      }
 
       return;
     }
 
-    setErrFields({});
+    // Clear field errors
+    setErrFields({
+      name: false,
+      email: false,
+      message: false,
+    });
 
     try {
       setSubmitting(true);
@@ -71,7 +84,7 @@ function Contact() {
       });
 
       setFormMsg({
-        type: "success",
+        type: "ok",
         text: "Thank you! Your message has been received. We'll get back to you shortly.",
       });
 
@@ -80,8 +93,10 @@ function Contact() {
       console.error("Contact submission error:", error);
 
       setFormMsg({
-        type: "error",
-        text: error.message || "Unable to send your message. Please try again.",
+        type: "err",
+        text:
+          error?.message ||
+          "Unable to send your message. Please try again.",
       });
     } finally {
       setSubmitting(false);
@@ -91,16 +106,20 @@ function Contact() {
   return (
     <section className="py-[110px] bg-cream-2" id="contact">
       <div className="wrap grid grid-cols-[.85fr_1.15fr] tab:grid-cols-1 gap-14 tab:gap-10">
+        {/* Contact Information */}
         <div className="reveal">
           <span className="eyebrow">Get in Touch</span>
+
           <h3 className="text-[1.5rem] mb-2 mt-3.5">
             Let&apos;s talk about your next move
           </h3>
+
           <p className="text-muted mb-7.5">
             Tell us where you are and where you want to go. We&apos;ll respond
             within one business day.
           </p>
 
+          {/* Email */}
           <div className="flex gap-4 mb-5.5">
             <div className="w-11 h-11 shrink-0 rounded-[11px] bg-white border border-line grid place-items-center text-gold-deep">
               <svg
@@ -114,10 +133,12 @@ function Contact() {
                 <path d="M4 6l8 6 8-6" />
               </svg>
             </div>
+
             <div>
               <h5 className="font-sans text-[.78rem] uppercase tracking-wide text-muted font-semibold">
                 Email
               </h5>
+
               <p className="font-medium text-teal-900 leading-normal">
                 <a
                   href="mailto:hck@avtaran.com"
@@ -129,6 +150,7 @@ function Contact() {
             </div>
           </div>
 
+          {/* Phone */}
           <div className="flex gap-4 mb-5.5">
             <div className="w-11 h-11 shrink-0 rounded-[11px] bg-white border border-line grid place-items-center text-gold-deep">
               <svg
@@ -141,10 +163,12 @@ function Contact() {
                 <path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3 19.5 19.5 0 01-6-6 19.8 19.8 0 01-3-8.6A2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .4 2 .7 2.9a2 2 0 01-.5 2.1L8.1 9.9a16 16 0 006 6l1.2-1.2a2 2 0 012.1-.5c.9.3 1.9.6 2.9.7a2 2 0 011.7 2z" />
               </svg>
             </div>
+
             <div>
               <h5 className="font-sans text-[.78rem] uppercase tracking-wide text-muted font-semibold">
                 Phone
               </h5>
+
               <p className="font-medium text-teal-900 leading-normal">
                 <a
                   href="tel:+919833395565"
@@ -156,6 +180,7 @@ function Contact() {
             </div>
           </div>
 
+          {/* Head Office */}
           <div className="flex gap-4 mb-5.5">
             <div className="w-11 h-11 shrink-0 rounded-[11px] bg-white border border-line grid place-items-center text-gold-deep">
               <svg
@@ -169,10 +194,12 @@ function Contact() {
                 <circle cx="12" cy="10" r="3" />
               </svg>
             </div>
+
             <div>
               <h5 className="font-sans text-[.78rem] uppercase tracking-wide text-muted font-semibold">
                 Head Office
               </h5>
+
               <p className="font-medium text-teal-900 leading-relaxed">
                 AVTARAN Capital Advisors Pvt. Ltd.
                 <br />
@@ -188,6 +215,7 @@ function Contact() {
           </div>
         </div>
 
+        {/* Contact Form */}
         <form
           className="cform reveal"
           id="contactForm"
@@ -195,11 +223,14 @@ function Contact() {
           ref={formRef}
           onSubmit={handleSubmit}
         >
+          {/* Success / Error Message */}
           {formMsg.type && (
-            <div className={"form-msg " + formMsg.type} id="formMsg">
+            <div className={`form-msg ${formMsg.type}`} id="formMsg">
               {formMsg.text}
             </div>
           )}
+
+          {/* Name + Company */}
           <div className="grid grid-cols-2 mob:grid-cols-1 gap-4.5">
             <div className="mb-4.5">
               <label
@@ -208,15 +239,19 @@ function Contact() {
               >
                 Full name *
               </label>
+
               <input
                 type="text"
                 id="name"
                 name="name"
                 placeholder="Your name"
                 ref={nameRef}
-                className={"field-input" + (errFields.name ? " err-field" : "")}
+                className={`field-input ${
+                  errFields.name ? "err-field" : ""
+                }`}
               />
             </div>
+
             <div className="mb-4.5">
               <label
                 htmlFor="company"
@@ -224,6 +259,7 @@ function Contact() {
               >
                 Company
               </label>
+
               <input
                 type="text"
                 id="company"
@@ -233,6 +269,8 @@ function Contact() {
               />
             </div>
           </div>
+
+          {/* Email + Phone */}
           <div className="grid grid-cols-2 mob:grid-cols-1 gap-4.5">
             <div className="mb-4.5">
               <label
@@ -241,17 +279,19 @@ function Contact() {
               >
                 Email *
               </label>
+
               <input
                 type="email"
                 id="email"
                 name="email"
                 placeholder="you@company.com"
                 ref={emailRef}
-                className={
-                  "field-input" + (errFields.email ? " err-field" : "")
-                }
+                className={`field-input ${
+                  errFields.email ? "err-field" : ""
+                }`}
               />
             </div>
+
             <div className="mb-4.5">
               <label
                 htmlFor="phone"
@@ -259,6 +299,7 @@ function Contact() {
               >
                 Phone
               </label>
+
               <input
                 type="tel"
                 id="phone"
@@ -268,6 +309,8 @@ function Contact() {
               />
             </div>
           </div>
+
+          {/* Service */}
           <div className="mb-4.5">
             <label
               htmlFor="service"
@@ -275,6 +318,7 @@ function Contact() {
             >
               I&apos;m interested in
             </label>
+
             <select
               id="service"
               name="service"
@@ -291,6 +335,8 @@ function Contact() {
               <option>Other</option>
             </select>
           </div>
+
+          {/* Message */}
           <div className="mb-4.5">
             <label
               htmlFor="message"
@@ -298,17 +344,19 @@ function Contact() {
             >
               How can we help? *
             </label>
+
             <textarea
               id="message"
               name="message"
-              placeholder="Tell us a little about your business and goals&hellip;"
+              placeholder="Tell us a little about your business and goals…"
               ref={messageRef}
-              className={
-                "field-input resize-y min-h-[110px]" +
-                (errFields.message ? " err-field" : "")
-              }
-            ></textarea>
+              className={`field-input resize-y min-h-[110px] ${
+                errFields.message ? "err-field" : ""
+              }`}
+            />
           </div>
+
+          {/* Submit */}
           <button
             type="submit"
             disabled={submitting}

@@ -4,8 +4,10 @@ import { submitCareerApplication } from "../../api/api";
 function CareerApplication() {
   const [file, setFile] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+
+  // type: "ok" | "err" | null
   const [formMessage, setFormMessage] = useState({
-    type: "",
+    type: null,
     text: "",
   });
 
@@ -14,8 +16,17 @@ function CareerApplication() {
 
     if (!selectedFile) return;
 
+    // Max 5MB
     if (selectedFile.size > 5 * 1024 * 1024) {
-      alert("Please upload a file smaller than 5MB.");
+      setFormMessage({
+        type: "err",
+        text: "Please upload a file smaller than 5MB.",
+      });
+
+      // Clear invalid file
+      e.target.value = "";
+      setFile(null);
+
       return;
     }
 
@@ -25,9 +36,23 @@ function CareerApplication() {
     ];
 
     if (!allowedTypes.includes(selectedFile.type)) {
-      alert("Please upload a PDF or DOCX file.");
+      setFormMessage({
+        type: "err",
+        text: "Please upload a PDF or DOCX file.",
+      });
+
+      // Clear invalid file
+      e.target.value = "";
+      setFile(null);
+
       return;
     }
+
+    // Clear previous error after valid file selection
+    setFormMessage({
+      type: null,
+      text: "",
+    });
 
     setFile(selectedFile);
   };
@@ -35,14 +60,15 @@ function CareerApplication() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Clear previous message
     setFormMessage({
-      type: "",
+      type: null,
       text: "",
     });
 
     if (!file) {
       setFormMessage({
-        type: "error",
+        type: "err",
         text: "Please upload your CV / Resume.",
       });
 
@@ -53,26 +79,24 @@ function CareerApplication() {
       setSubmitting(true);
 
       const form = e.currentTarget;
-
       const formData = new FormData(form);
 
       await submitCareerApplication(formData);
 
       setFormMessage({
-        type: "success",
+        type: "ok",
         text: "Your application has been submitted successfully. We will review your application and contact you if there is a suitable opportunity.",
       });
 
       form.reset();
-
       setFile(null);
     } catch (error) {
       console.error("Career application error:", error);
 
       setFormMessage({
-        type: "error",
+        type: "err",
         text:
-          error.message ||
+          error?.message ||
           "Unable to submit your application. Please try again.",
       });
     } finally {
@@ -117,15 +141,10 @@ function CareerApplication() {
 
           {/* Application form */}
           <div className="reveal cform">
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} noValidate>
+              {/* Success / Error Message */}
               {formMessage.type && (
-                <div
-                  className={`mb-5 rounded-xl px-5 py-4 ${
-                    formMessage.type === "success"
-                      ? "bg-green-50 text-green-800 border border-green-200"
-                      : "bg-red-50 text-red-800 border border-red-200"
-                  }`}
-                >
+                <div className={`form-msg ${formMessage.type}`} id="formMsg">
                   {formMessage.text}
                 </div>
               )}
@@ -256,7 +275,7 @@ function CareerApplication() {
 
                 <label
                   htmlFor="resume"
-                  className="flex flex-col items-center justify-center min-h-[150px] px-6 py-8 rounded-[12px] border-[1.5px] border-dashed border-line bg-cream cursor-pointer transition-all duration-200 hover:border-gold-1 hover:bg-gold-2"
+                  className="career-upload"
                 >
                   <div className="w-11 h-11 rounded-full bg-gold-2 text-gold-deep grid place-items-center text-xl">
                     ↑
@@ -264,7 +283,7 @@ function CareerApplication() {
 
                   {file ? (
                     <>
-                      <span className="mt-3 text-[.92rem] font-semibold text-teal-900 text-center">
+                      <span className="mt-3 text-[.92rem] font-semibold text-teal-900 text-center break-all">
                         {file.name}
                       </span>
 
@@ -274,7 +293,7 @@ function CareerApplication() {
                     </>
                   ) : (
                     <>
-                      <span className="mt-3 text-[.92rem] font-semibold text-teal-900">
+                      <span className="mt-3 text-[.92rem] font-semibold text-teal-900 text-center">
                         Click to upload or drag and drop
                       </span>
 

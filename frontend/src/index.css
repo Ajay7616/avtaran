@@ -616,3 +616,17 @@
     transform: none !important;
   }
 }
+
+.form-msg.ok {
+  @apply bg-[rgba(46,113,137,.12)]
+    text-teal-800
+    border
+    border-[rgba(46,113,137,.3)];
+}
+
+.form-msg.err {
+  @apply bg-[rgba(180,60,60,.1)]
+    text-[#a33]
+    border
+    border-[rgba(180,60,60,.3)];
+}
