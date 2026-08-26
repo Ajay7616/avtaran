@@ -1,14 +1,5 @@
-import React, {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-import {
-  Link,
-  useLocation,
-  useNavigate,
-} from "react-router-dom";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import LOGO_SRC from "../../assets/logo.png";
 import { NAV_SERVICE_LINKS } from "../../data/data";
@@ -41,9 +32,7 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
 
       // Already on homepage
       if (location.pathname === "/") {
-        const element = document.getElementById(
-          sectionId
-        );
+        const element = document.getElementById(sectionId);
 
         if (element) {
           element.scrollIntoView({
@@ -53,11 +42,7 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
         }
 
         // Update URL without creating unnecessary history
-        window.history.replaceState(
-          null,
-          "",
-          `/#${sectionId}`
-        );
+        window.history.replaceState(null, "", `/#${sectionId}`);
 
         return;
       }
@@ -66,7 +51,7 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
       // navigate to homepage first.
       navigate(`/#${sectionId}`);
     },
-    [location.pathname, navigate, closeAll]
+    [location.pathname, navigate, closeAll],
   );
 
   // --------------------------------------------------
@@ -84,16 +69,12 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
           behavior: "smooth",
         });
 
-        window.history.replaceState(
-          null,
-          "",
-          "/"
-        );
+        window.history.replaceState(null, "", "/");
       } else {
         navigate("/");
       }
     },
-    [location.pathname, navigate, closeAll]
+    [location.pathname, navigate, closeAll],
   );
 
   // --------------------------------------------------
@@ -103,9 +84,7 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
     if (window.innerWidth <= 720) {
       e.preventDefault();
 
-      setOpenSection((prev) =>
-        prev === key ? null : key
-      );
+      setOpenSection((prev) => (prev === key ? null : key));
     }
   };
 
@@ -116,34 +95,19 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
     if (!navOpen) return;
 
     const handlePointerDown = (e) => {
-      if (
-        navRef.current &&
-        !navRef.current.contains(e.target)
-      ) {
+      if (navRef.current && !navRef.current.contains(e.target)) {
         closeAll();
       }
     };
 
-    document.addEventListener(
-      "mousedown",
-      handlePointerDown
-    );
+    document.addEventListener("mousedown", handlePointerDown);
 
-    document.addEventListener(
-      "touchstart",
-      handlePointerDown
-    );
+    document.addEventListener("touchstart", handlePointerDown);
 
     return () => {
-      document.removeEventListener(
-        "mousedown",
-        handlePointerDown
-      );
+      document.removeEventListener("mousedown", handlePointerDown);
 
-      document.removeEventListener(
-        "touchstart",
-        handlePointerDown
-      );
+      document.removeEventListener("touchstart", handlePointerDown);
     };
   }, [navOpen, closeAll]);
 
@@ -159,16 +123,10 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
       }
     };
 
-    document.addEventListener(
-      "keydown",
-      handleKey
-    );
+    document.addEventListener("keydown", handleKey);
 
     return () => {
-      document.removeEventListener(
-        "keydown",
-        handleKey
-      );
+      document.removeEventListener("keydown", handleKey);
     };
   }, [navOpen, closeAll]);
 
@@ -178,9 +136,7 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
   useEffect(() => {
     if (!navOpen) return;
 
-    const mq = window.matchMedia(
-      "(min-width: 721px)"
-    );
+    const mq = window.matchMedia("(min-width: 721px)");
 
     const handleChange = (e) => {
       if (e.matches) {
@@ -191,10 +147,7 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
     mq.addEventListener("change", handleChange);
 
     return () => {
-      mq.removeEventListener(
-        "change",
-        handleChange
-      );
+      mq.removeEventListener("change", handleChange);
     };
   }, [navOpen, closeAll]);
 
@@ -221,8 +174,7 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
 
     // Small delay allows HomePage to render first
     const timer = setTimeout(() => {
-      const element =
-        document.getElementById(sectionId);
+      const element = document.getElementById(sectionId);
 
       if (element) {
         element.scrollIntoView({
@@ -264,15 +216,11 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
 
   return (
     <header
-      className={
-        "site-nav" +
-        (scrolled ? " scrolled" : "")
-      }
+      className={"site-nav" + (scrolled ? " scrolled" : "")}
       id="nav"
       ref={navRef}
     >
       <div className="wrap flex items-center justify-between gap-6">
-
         {/* ================================================= */}
         {/* LOGO */}
         {/* ================================================= */}
@@ -286,8 +234,7 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
             src={LOGO_SRC}
             alt="Avtaran Capital logo"
             className={
-              "transition-all duration-300 " +
-              (scrolled ? "h-12" : "h-14")
+              "transition-all duration-300 " + (scrolled ? "h-12" : "h-14")
             }
           />
         </a>
@@ -307,16 +254,13 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
             (navOpen ? "mob:flex" : "mob:hidden")
           }
         >
-
           {/* ================================================= */}
           {/* HOME */}
           {/* ================================================= */}
 
           <a
             href="/#home"
-            onClick={(e) =>
-              handleSectionNavigation(e, "home")
-            }
+            onClick={(e) => handleSectionNavigation(e, "home")}
             className="nav-link"
           >
             Home
@@ -328,9 +272,7 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
 
           <a
             href="/#about"
-            onClick={(e) =>
-              handleSectionNavigation(e, "about")
-            }
+            onClick={(e) => handleSectionNavigation(e, "about")}
             className="nav-link"
           >
             About Us
@@ -342,9 +284,7 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
 
           <a
             href="/#team"
-            onClick={(e) =>
-              handleSectionNavigation(e, "team")
-            }
+            onClick={(e) => handleSectionNavigation(e, "team")}
             className="nav-link"
           >
             Team
@@ -355,25 +295,17 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
           {/* ================================================= */}
 
           <div className="group relative mob:w-full">
-
             <a
               href="/#services"
               className="nav-link mob:flex mob:items-center mob:justify-between mob:w-full"
-              onClick={(e) =>
-                handleTriggerTap(
-                  e,
-                  "services"
-                )
-              }
+              onClick={(e) => handleTriggerTap(e, "services")}
             >
               <span>Services</span>
 
               <span
                 className={
                   "inline-block transition-transform duration-200 " +
-                  (openSection === "services"
-                    ? "mob:rotate-180"
-                    : "")
+                  (openSection === "services" ? "mob:rotate-180" : "")
                 }
               >
                 &#9662;
@@ -392,11 +324,7 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
               }
             >
               {NAV_SERVICE_LINKS.map((l) => (
-                <Link
-                  to={l.href}
-                  key={l.href}
-                  onClick={closeAll}
-                >
+                <Link to={l.href} key={l.href} onClick={closeAll}>
                   {l.title}
                   <small>{l.sub}</small>
                 </Link>
@@ -410,12 +338,7 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
 
           <a
             href="/#startup"
-            onClick={(e) =>
-              handleSectionNavigation(
-                e,
-                "startup"
-              )
-            }
+            onClick={(e) => handleSectionNavigation(e, "startup")}
             className="nav-link"
           >
             Startup
@@ -426,25 +349,17 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
           {/* ================================================= */}
 
           <div className="group relative mob:w-full">
-
             <a
               href="/#presence"
               className="nav-link mob:flex mob:items-center mob:justify-between mob:w-full"
-              onClick={(e) =>
-                handleTriggerTap(
-                  e,
-                  "presence"
-                )
-              }
+              onClick={(e) => handleTriggerTap(e, "presence")}
             >
               <span>Presence</span>
 
               <span
                 className={
                   "inline-block transition-transform duration-200 " +
-                  (openSection === "presence"
-                    ? "mob:rotate-180"
-                    : "")
+                  (openSection === "presence" ? "mob:rotate-180" : "")
                 }
               >
                 &#9662;
@@ -462,41 +377,25 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
                 dropdownMobClasses("presence")
               }
             >
-
               <a
                 href="/#presence"
                 className="pres-link"
                 data-target="global"
-                onClick={(e) =>
-                  handleSectionNavigation(
-                    e,
-                    "presence"
-                  )
-                }
+                onClick={(e) => handleSectionNavigation(e, "presence")}
               >
                 Global Presence
-                <small>
-                  Cross-border reach
-                </small>
+                <small>Cross-border reach</small>
               </a>
 
               <a
                 href="/#presence"
                 className="pres-link"
                 data-target="india"
-                onClick={(e) =>
-                  handleSectionNavigation(
-                    e,
-                    "presence"
-                  )
-                }
+                onClick={(e) => handleSectionNavigation(e, "presence")}
               >
                 India Presence
-                <small>
-                  Pan-India network
-                </small>
+                <small>Pan-India network</small>
               </a>
-
             </div>
           </div>
 
@@ -505,13 +404,8 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
           {/* ================================================= */}
 
           <a
-            href="/#career"
-            onClick={(e) =>
-              handleSectionNavigation(
-                e,
-                "career"
-              )
-            }
+            href="/career"
+            onClick={(e) => handleSectionNavigation(e, "career")}
             className="nav-link"
           >
             Career
@@ -523,17 +417,11 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
 
           <a
             href="/#contact"
-            onClick={(e) =>
-              handleSectionNavigation(
-                e,
-                "contact"
-              )
-            }
+            onClick={(e) => handleSectionNavigation(e, "contact")}
             className="nav-link"
           >
             Contact Us
           </a>
-
         </nav>
 
         {/* ================================================= */}
@@ -541,18 +429,12 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
         {/* ================================================= */}
 
         <div className="flex items-center gap-2.5">
-
           {/* Desktop consultation button */}
 
           <a
             href="/#contact"
             className="btn btn-gold mob:hidden"
-            onClick={(e) =>
-              handleSectionNavigation(
-                e,
-                "contact"
-              )
-            }
+            onClick={(e) => handleSectionNavigation(e, "contact")}
           >
             Book a Consultation
           </a>
@@ -563,24 +445,16 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
             type="button"
             className="hidden mob:block bg-transparent border-none cursor-pointer p-2"
             id="menuBtn"
-            aria-label={
-              navOpen
-                ? "Close menu"
-                : "Open menu"
-            }
+            aria-label={navOpen ? "Close menu" : "Open menu"}
             aria-expanded={navOpen}
             aria-controls="navlinks"
-            onClick={() =>
-              setNavOpen((v) => !v)
-            }
+            onClick={() => setNavOpen((v) => !v)}
           >
             <span
               className={
                 "block w-6 h-0.5 bg-teal-800 " +
                 "transition-transform duration-200" +
-                (navOpen
-                  ? " translate-y-2 rotate-45"
-                  : "")
+                (navOpen ? " translate-y-2 rotate-45" : "")
               }
             />
 
@@ -588,9 +462,7 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
               className={
                 "block w-6 h-0.5 bg-teal-800 my-1.5 " +
                 "transition-opacity duration-200" +
-                (navOpen
-                  ? " opacity-0"
-                  : "")
+                (navOpen ? " opacity-0" : "")
               }
             />
 
@@ -598,13 +470,10 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
               className={
                 "block w-6 h-0.5 bg-teal-800 " +
                 "transition-transform duration-200" +
-                (navOpen
-                  ? " -translate-y-2 -rotate-45"
-                  : "")
+                (navOpen ? " -translate-y-2 -rotate-45" : "")
               }
             />
           </button>
-
         </div>
       </div>
     </header>
