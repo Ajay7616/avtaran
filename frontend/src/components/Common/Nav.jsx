@@ -1,47 +1,155 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
+
 import LOGO_SRC from "../../assets/logo.png";
 import { NAV_SERVICE_LINKS } from "../../data/data";
 
 function Nav({ navOpen, setNavOpen, scrolled }) {
   const navRef = useRef(null);
 
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const [openSection, setOpenSection] = useState(null);
   // "services" | "presence" | null
 
-  const closeAll = () => {
+  // --------------------------------------------------
+  // Close everything
+  // --------------------------------------------------
+  const closeAll = useCallback(() => {
     setNavOpen(false);
     setOpenSection(null);
-  };
+  }, [setNavOpen]);
 
+  // --------------------------------------------------
+  // Navigate to homepage section
+  // --------------------------------------------------
+  const handleSectionNavigation = useCallback(
+    (e, sectionId) => {
+      e.preventDefault();
+
+      closeAll();
+
+      // Already on homepage
+      if (location.pathname === "/") {
+        const element = document.getElementById(
+          sectionId
+        );
+
+        if (element) {
+          element.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }
+
+        // Update URL without creating unnecessary history
+        window.history.replaceState(
+          null,
+          "",
+          `/#${sectionId}`
+        );
+
+        return;
+      }
+
+      // On another page:
+      // navigate to homepage first.
+      navigate(`/#${sectionId}`);
+    },
+    [location.pathname, navigate, closeAll]
+  );
+
+  // --------------------------------------------------
+  // Handle logo navigation
+  // --------------------------------------------------
+  const handleLogoClick = useCallback(
+    (e) => {
+      e.preventDefault();
+
+      closeAll();
+
+      if (location.pathname === "/") {
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+
+        window.history.replaceState(
+          null,
+          "",
+          "/"
+        );
+      } else {
+        navigate("/");
+      }
+    },
+    [location.pathname, navigate, closeAll]
+  );
+
+  // --------------------------------------------------
   // Mobile dropdown / accordion toggle
+  // --------------------------------------------------
   const handleTriggerTap = (e, key) => {
     if (window.innerWidth <= 720) {
       e.preventDefault();
 
-      setOpenSection((prev) => (prev === key ? null : key));
+      setOpenSection((prev) =>
+        prev === key ? null : key
+      );
     }
   };
 
+  // --------------------------------------------------
   // Close menu when clicking outside
+  // --------------------------------------------------
   useEffect(() => {
     if (!navOpen) return;
 
     const handlePointerDown = (e) => {
-      if (navRef.current && !navRef.current.contains(e.target)) {
+      if (
+        navRef.current &&
+        !navRef.current.contains(e.target)
+      ) {
         closeAll();
       }
     };
 
-    document.addEventListener("mousedown", handlePointerDown);
-    document.addEventListener("touchstart", handlePointerDown);
+    document.addEventListener(
+      "mousedown",
+      handlePointerDown
+    );
+
+    document.addEventListener(
+      "touchstart",
+      handlePointerDown
+    );
 
     return () => {
-      document.removeEventListener("mousedown", handlePointerDown);
-      document.removeEventListener("touchstart", handlePointerDown);
-    };
-  }, [navOpen]);
+      document.removeEventListener(
+        "mousedown",
+        handlePointerDown
+      );
 
+      document.removeEventListener(
+        "touchstart",
+        handlePointerDown
+      );
+    };
+  }, [navOpen, closeAll]);
+
+  // --------------------------------------------------
   // Close menu with Escape
+  // --------------------------------------------------
   useEffect(() => {
     if (!navOpen) return;
 
@@ -51,18 +159,28 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
       }
     };
 
-    document.addEventListener("keydown", handleKey);
+    document.addEventListener(
+      "keydown",
+      handleKey
+    );
 
     return () => {
-      document.removeEventListener("keydown", handleKey);
+      document.removeEventListener(
+        "keydown",
+        handleKey
+      );
     };
-  }, [navOpen]);
+  }, [navOpen, closeAll]);
 
+  // --------------------------------------------------
   // Close mobile menu if viewport becomes desktop
+  // --------------------------------------------------
   useEffect(() => {
     if (!navOpen) return;
 
-    const mq = window.matchMedia("(min-width: 721px)");
+    const mq = window.matchMedia(
+      "(min-width: 721px)"
+    );
 
     const handleChange = (e) => {
       if (e.matches) {
@@ -73,18 +191,55 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
     mq.addEventListener("change", handleChange);
 
     return () => {
-      mq.removeEventListener("change", handleChange);
+      mq.removeEventListener(
+        "change",
+        handleChange
+      );
     };
-  }, [navOpen]);
+  }, [navOpen, closeAll]);
 
+  // --------------------------------------------------
   // Reset accordion when mobile menu closes
+  // --------------------------------------------------
   useEffect(() => {
     if (!navOpen) {
       setOpenSection(null);
     }
   }, [navOpen]);
 
+  // --------------------------------------------------
+  // Scroll to hash after navigating to homepage
+  // --------------------------------------------------
+  useEffect(() => {
+    if (location.pathname !== "/") return;
+
+    const hash = window.location.hash;
+
+    if (!hash) return;
+
+    const sectionId = hash.substring(1);
+
+    // Small delay allows HomePage to render first
+    const timer = setTimeout(() => {
+      const element =
+        document.getElementById(sectionId);
+
+      if (element) {
+        element.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }
+    }, 100);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [location.pathname]);
+
+  // --------------------------------------------------
   // Mobile dropdown classes
+  // --------------------------------------------------
   const dropdownMobClasses = (key) => {
     if (openSection === key) {
       return [
@@ -110,17 +265,22 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
   return (
     <header
       className={
-        "site-nav" + (scrolled ? " scrolled" : "")
+        "site-nav" +
+        (scrolled ? " scrolled" : "")
       }
       id="nav"
       ref={navRef}
     >
       <div className="wrap flex items-center justify-between gap-6">
-        {/* Logo */}
+
+        {/* ================================================= */}
+        {/* LOGO */}
+        {/* ================================================= */}
+
         <a
-          href="#home"
+          href="/"
           className="flex items-center gap-3"
-          onClick={closeAll}
+          onClick={handleLogoClick}
         >
           <img
             src={LOGO_SRC}
@@ -132,7 +292,10 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
           />
         </a>
 
-        {/* Navigation */}
+        {/* ================================================= */}
+        {/* NAVIGATION */}
+        {/* ================================================= */}
+
         <nav
           id="navlinks"
           className={
@@ -144,40 +307,63 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
             (navOpen ? "mob:flex" : "mob:hidden")
           }
         >
-          {/* Home */}
+
+          {/* ================================================= */}
+          {/* HOME */}
+          {/* ================================================= */}
+
           <a
-            href="#home"
-            onClick={closeAll}
+            href="/#home"
+            onClick={(e) =>
+              handleSectionNavigation(e, "home")
+            }
             className="nav-link"
           >
             Home
           </a>
 
-          {/* About */}
+          {/* ================================================= */}
+          {/* ABOUT */}
+          {/* ================================================= */}
+
           <a
-            href="#about"
-            onClick={closeAll}
+            href="/#about"
+            onClick={(e) =>
+              handleSectionNavigation(e, "about")
+            }
             className="nav-link"
           >
             About Us
           </a>
 
-          {/* Team */}
+          {/* ================================================= */}
+          {/* TEAM */}
+          {/* ================================================= */}
+
           <a
-            href="#team"
-            onClick={closeAll}
+            href="/#team"
+            onClick={(e) =>
+              handleSectionNavigation(e, "team")
+            }
             className="nav-link"
           >
             Team
           </a>
 
-          {/* Services */}
+          {/* ================================================= */}
+          {/* SERVICES */}
+          {/* ================================================= */}
+
           <div className="group relative mob:w-full">
+
             <a
-              href="#services"
+              href="/#services"
               className="nav-link mob:flex mob:items-center mob:justify-between mob:w-full"
               onClick={(e) =>
-                handleTriggerTap(e, "services")
+                handleTriggerTap(
+                  e,
+                  "services"
+                )
               }
             >
               <span>Services</span>
@@ -206,34 +392,49 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
               }
             >
               {NAV_SERVICE_LINKS.map((l) => (
-                <a
-                  href={l.href}
+                <Link
+                  to={l.href}
                   key={l.href}
                   onClick={closeAll}
                 >
                   {l.title}
                   <small>{l.sub}</small>
-                </a>
+                </Link>
               ))}
             </div>
           </div>
 
-          {/* Startup */}
+          {/* ================================================= */}
+          {/* STARTUP */}
+          {/* ================================================= */}
+
           <a
-            href="#startup"
-            onClick={closeAll}
+            href="/#startup"
+            onClick={(e) =>
+              handleSectionNavigation(
+                e,
+                "startup"
+              )
+            }
             className="nav-link"
           >
             Startup
           </a>
 
-          {/* Presence */}
+          {/* ================================================= */}
+          {/* PRESENCE */}
+          {/* ================================================= */}
+
           <div className="group relative mob:w-full">
+
             <a
-              href="#presence"
+              href="/#presence"
               className="nav-link mob:flex mob:items-center mob:justify-between mob:w-full"
               onClick={(e) =>
-                handleTriggerTap(e, "presence")
+                handleTriggerTap(
+                  e,
+                  "presence"
+                )
               }
             >
               <span>Presence</span>
@@ -261,66 +462,117 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
                 dropdownMobClasses("presence")
               }
             >
+
               <a
-                href="#presence"
+                href="/#presence"
                 className="pres-link"
                 data-target="global"
-                onClick={closeAll}
+                onClick={(e) =>
+                  handleSectionNavigation(
+                    e,
+                    "presence"
+                  )
+                }
               >
                 Global Presence
-                <small>Cross-border reach</small>
+                <small>
+                  Cross-border reach
+                </small>
               </a>
 
               <a
-                href="#presence"
+                href="/#presence"
                 className="pres-link"
                 data-target="india"
-                onClick={closeAll}
+                onClick={(e) =>
+                  handleSectionNavigation(
+                    e,
+                    "presence"
+                  )
+                }
               >
                 India Presence
-                <small>Pan-India network</small>
+                <small>
+                  Pan-India network
+                </small>
               </a>
+
             </div>
           </div>
 
-          {/* Career */}
+          {/* ================================================= */}
+          {/* CAREER */}
+          {/* ================================================= */}
+
           <a
-            href="#contact"
-            onClick={closeAll}
+            href="/#career"
+            onClick={(e) =>
+              handleSectionNavigation(
+                e,
+                "career"
+              )
+            }
             className="nav-link"
           >
             Career
           </a>
 
-          {/* Contact */}
+          {/* ================================================= */}
+          {/* CONTACT */}
+          {/* ================================================= */}
+
           <a
-            href="#contact"
-            onClick={closeAll}
+            href="/#contact"
+            onClick={(e) =>
+              handleSectionNavigation(
+                e,
+                "contact"
+              )
+            }
             className="nav-link"
           >
             Contact Us
           </a>
+
         </nav>
 
-        {/* Right side */}
+        {/* ================================================= */}
+        {/* RIGHT SIDE */}
+        {/* ================================================= */}
+
         <div className="flex items-center gap-2.5">
-          {/* Desktop button */}
+
+          {/* Desktop consultation button */}
+
           <a
-            href="#contact"
+            href="/#contact"
             className="btn btn-gold mob:hidden"
+            onClick={(e) =>
+              handleSectionNavigation(
+                e,
+                "contact"
+              )
+            }
           >
             Book a Consultation
           </a>
 
           {/* Mobile menu button */}
+
           <button
             type="button"
             className="hidden mob:block bg-transparent border-none cursor-pointer p-2"
             id="menuBtn"
-            aria-label="Menu"
+            aria-label={
+              navOpen
+                ? "Close menu"
+                : "Open menu"
+            }
             aria-expanded={navOpen}
             aria-controls="navlinks"
-            onClick={() => setNavOpen((v) => !v)}
+            onClick={() =>
+              setNavOpen((v) => !v)
+            }
           >
             <span
               className={
@@ -336,7 +588,9 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
               className={
                 "block w-6 h-0.5 bg-teal-800 my-1.5 " +
                 "transition-opacity duration-200" +
-                (navOpen ? " opacity-0" : "")
+                (navOpen
+                  ? " opacity-0"
+                  : "")
               }
             />
 
@@ -350,6 +604,7 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
               }
             />
           </button>
+
         </div>
       </div>
     </header>

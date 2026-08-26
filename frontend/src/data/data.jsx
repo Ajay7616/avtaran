@@ -1,14 +1,46 @@
 import React from "react";
 
-const NAV_SERVICE_LINKS = [
-  { href: "#forex", title: "Foreign Exchange / RBI", sub: "FEMA, remittances, FDI/ODI" },
-  { href: "#corporate-advisory", title: "Corporate Advisory", sub: "M&A, restructuring, strategy" },
-  { href: "#investment-banking", title: "Investment Banking", sub: "Capital raising & deals" },
-  { href: "#citizenship", title: "Citizenship / PR", sub: "Global residency pathways" },
-  { href: "#virtual-cfo-card", title: "Virtual CFO Services", sub: "Fractional finance leadership" },
-  { href: "#family-office", title: "Family Office Management", sub: "Wealth & succession" },
-  { href: "#business-setup", title: "Business Set-up", sub: "Incorporation & compliance" },
-  { href: "#startup-advisory", title: "Startup & Fundraising", sub: "Idea to investable" },
+export const NAV_SERVICE_LINKS = [
+  {
+    href: "/services/forex",
+    title: "Foreign Exchange / RBI",
+    sub: "FEMA, remittances, FDI/ODI",
+  },
+  {
+    href: "/services/corporate-advisory",
+    title: "Corporate Advisory",
+    sub: "M&A, restructuring, strategy",
+  },
+  {
+    href: "/services/investment-banking",
+    title: "Investment Banking",
+    sub: "Capital raising & deals",
+  },
+  {
+    href: "/services/citizenship",
+    title: "Citizenship / PR",
+    sub: "Global residency pathways",
+  },
+  {
+    href: "/services/virtual-cfo",
+    title: "Virtual CFO Services",
+    sub: "Fractional finance leadership",
+  },
+  {
+    href: "/services/family-office",
+    title: "Family Office Management",
+    sub: "Wealth & succession",
+  },
+  {
+    href: "/services/business-setup",
+    title: "Business Set-up",
+    sub: "Incorporation & compliance",
+  },
+  {
+    href: "/services/startup",
+    title: "Startup & Fundraising",
+    sub: "Idea to investable",
+  },
 ];
 
 
