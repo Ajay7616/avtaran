@@ -60,13 +60,11 @@
 
 const { Resend } = require("resend");
 
-const apiKey = process.env.RESEND_API_KEY;
-
-if (!apiKey) {
-  console.error("RESEND_API_KEY is missing");
+if (!process.env.RESEND_API_KEY) {
+  console.error("❌ RESEND_API_KEY is missing");
 }
 
-const resend = apiKey ? new Resend(apiKey) : null;
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendEmail = async ({
   to,
@@ -74,28 +72,30 @@ const sendEmail = async ({
   html,
   attachments = [],
 }) => {
-  if (!resend) {
-    throw new Error("RESEND_API_KEY is not configured");
-  }
-
   try {
-    const result = await resend.emails.send({
-      from: process.env.EMAIL_FROM,
+    const { data, error } = await resend.emails.send({
+      from: "Avtaran Capital <onboarding@resend.dev>",
       to,
       subject,
       html,
       attachments,
     });
 
-    if (result.error) {
-      throw result.error;
+    if (error) {
+      console.error("❌ Resend error:", error);
+      throw error;
     }
 
-    console.log("Email sent:", result.data?.id);
+    console.log("✅ Email sent:", data?.id);
 
-    return result.data;
+    return data;
   } catch (error) {
-    console.error("Email sending failed:", error);
+    console.error("❌ Email sending failed:", {
+      message: error.message,
+      name: error.name,
+      statusCode: error.statusCode,
+    });
+
     throw error;
   }
 };
