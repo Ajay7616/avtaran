@@ -51,7 +51,7 @@ function AdminDashboardPage() {
       <main className="max-w-[1400px] mx-auto px-6 lg:px-8 py-8">
         <DashboardStats stats={stats} loading={statsLoading} />
 
-        <div className="grid grid-cols-2 lg:grid-cols-1 gap-6 items-start">
+        <div className="flex flex-col gap-y-6">
           <CareerApplicationsTable />
           <ContactEnquiriesTable />
         </div>
