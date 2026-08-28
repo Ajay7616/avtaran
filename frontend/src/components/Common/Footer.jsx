@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import LOGO_SRC from "../../assets/logo.png";
+// import LOGO_SRC from "../../assets/logo.png";
 import { NAV_SERVICE_LINKS } from "../../data/data";
 
 function Footer() {
