@@ -31,7 +31,7 @@ function Footer() {
 
           {/* COMPANY INFORMATION */}
           <div>
-            <img
+            {/* <img
               src={LOGO_SRC}
               alt="Avtaran Capital"
               className="h-13 mb-4"
@@ -40,9 +40,9 @@ function Footer() {
             <p className="text-[.9rem] max-w-[280px] leading-relaxed">
               Strategic finance, Virtual CFO and capital advisory for
               ambitious businesses—across India and global markets.
-            </p>
+            </p> */}
 
-            <p className="mt-3.5 text-[.86rem] text-muted leading-relaxed">
+            <p className="text-[.86rem] text-muted leading-relaxed">
               AVTARAN Capital Advisors Pvt. Ltd.
               <br />
               Office No. 301, Kamla Hub, N S Road No. 1,

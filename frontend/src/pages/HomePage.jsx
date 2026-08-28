@@ -14,6 +14,7 @@ import Testimonial from "../components/Home/Testimonial";
 import CtaStrip from "../components/Home/CtaStrip";
 import Contact from "../components/Home/Contact";
 import Footer from "../components/Common/Footer";
+import GroupExposure from "../components/Home/Groupexposure";
 
 /* ---------------------------------------------------------
    Avtaran Capital — React + Tailwind conversion
@@ -111,6 +112,7 @@ export default function Home() {
       <TrustBar />
       <About />
       <ImpactStats />
+      <GroupExposure />
       <Leadership />
       <Services />
       <VcfoFeature />

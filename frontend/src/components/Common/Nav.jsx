@@ -234,7 +234,7 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
             src={LOGO_SRC}
             alt="Avtaran Capital logo"
             className={
-              "transition-all duration-300 " + (scrolled ? "h-12" : "h-14")
+              "transition-all duration-300 " + (scrolled ? "h-14" : "h-16")
             }
           />
         </a>
@@ -337,8 +337,8 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
           {/* ================================================= */}
 
           <a
-            href="/#startup"
-            onClick={(e) => handleSectionNavigation(e, "startup")}
+            href="/services/startup"
+            // onClick={(e) => handleSectionNavigation(e, "startup")}
             className="nav-link"
           >
             Startup
@@ -405,7 +405,7 @@ function Nav({ navOpen, setNavOpen, scrolled }) {
 
           <a
             href="/career"
-            onClick={(e) => handleSectionNavigation(e, "career")}
+            // onClick={(e) => handleSectionNavigation(e, "career")}
             className="nav-link"
           >
             Career

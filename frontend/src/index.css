@@ -121,7 +121,7 @@
 
   .nav-link {
     @apply px-4 py-2
-      text-[.92rem]
+      text-[.85rem]
       font-medium
       text-teal-800
       rounded-lg
@@ -629,4 +629,36 @@
     text-[#a33]
     border
     border-[rgba(180,60,60,.3)];
+}
+
+/* ========================================
+   LOADER ANIMATIONS
+   ======================================== */
+
+@keyframes spin-slow {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(0.97);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 2s linear infinite;
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s ease-in-out infinite;
 }

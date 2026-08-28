@@ -21,7 +21,7 @@ function ImpactStats() {
           </div>
           <div className="impact-card reveal bg-grad-ic-gold">
             <div className="font-serif font-semibold text-[clamp(2.8rem,5vw,4rem)] text-white leading-none relative z-[2]">
-              $<span data-count="500" data-plain="1">0</span>m+
+              $<span data-count="1500" data-plain="1">0</span>m+
             </div>
             <div className="font-sans font-semibold text-[1.3rem] text-white mt-3 relative z-[2]">Transactions Managed</div>
             <div className="mt-auto pt-6.5 text-[.85rem] font-medium text-white/80 relative z-[2]">Value successfully handled</div>

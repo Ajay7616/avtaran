@@ -3,7 +3,7 @@ import React from "react";
 function Hero() {
   return (
     <section
-      className="relative pt-[180px] pb-[120px] overflow-hidden bg-grad-hero border-b border-line"
+      className="relative pt-[140px] pb-[120px] overflow-hidden bg-grad-hero border-b border-line"
       id="home"
     >
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -22,6 +22,11 @@ function Hero() {
       <div className="absolute inset-0 bg-grid-pattern bg-[length:64px_64px] [mask-image:radial-gradient(circle_at_50%_30%,#000_0%,transparent_70%)] opacity-70"></div>
 
       <div className="wrap relative z-[3] max-w-[1200px]">
+        <div className="flex flex-col">
+        <span className="font-serif text-4xl md:text-7xl font-bold tracking-[-.02em] text-teal-900">
+            Avtaran <span className="text-[#C99A2E]">Capital</span>
+          </span>
+        </div>
         <span className="eyebrow reveal">Strategic Finance &middot; Virtual CFO &middot; Capital Advisory</span>
         <h1 className="reveal text-teal-900 text-[clamp(2.5rem,5.6vw,4.4rem)] font-semibold mt-5 tracking-[-.02em]">
           Finance leadership that helps you <em className="not-italic grad-text-gold">ascend</em>—from first cheque to global scale.
@@ -45,7 +50,7 @@ function Hero() {
             <span className="text-muted text-[.86rem] font-medium tracking-wide">Countries</span>
           </div>
           <div className="stat reveal">
-            <b data-prefix="$" data-count="500" data-suffix="m+" className="font-serif text-4xl text-teal-800 font-semibold block leading-none">0</b>
+            <b data-prefix="$" data-count="1500" data-suffix="m+" className="font-serif text-4xl text-teal-800 font-semibold block leading-none">0</b>
             <span className="text-muted text-[.86rem] font-medium tracking-wide">Transactions managed</span>
           </div>
           <div className="stat reveal">

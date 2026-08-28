@@ -33,7 +33,7 @@ function About() {
           <div className="bg-white border border-line rounded-[22px] p-11 shadow-brand-md relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1 bg-grad-gold"></div>
             <div className="absolute -right-10 -bottom-10 w-[200px] h-[200px] bg-grad-gold opacity-10 rounded-full blur-[10px]"></div>
-            <div className="font-serif text-5xl text-gold-deep font-semibold leading-none relative">2015</div>
+            <div className="font-serif text-5xl text-gold-deep font-semibold leading-none relative">2009</div>
             <span className="text-muted text-[.9rem] mb-6.5 block relative">Advising founders &amp; enterprises since</span>
             <ul className="list-none mt-3.5 relative">
               <li className="flex gap-3 py-3 border-t border-line text-[.95rem] text-ink before:content-['▲'] before:text-gold-deep before:text-[.7rem] before:mt-1">
