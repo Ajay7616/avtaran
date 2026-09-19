@@ -1,6 +1,7 @@
 import { encryptPayload, decryptPayload } from "../utils/encryption";
 
-const API_URL = import.meta.env.REACT_APP_API_URL || "http://localhost:5000";
+// const API_URL = import.meta.env.REACT_APP_API_URL || "http://localhost:5000";
+const API_URL = import.meta.env.REACT_APP_API_URL || "https://avtaran.onrender.com";
 
 // Ensures concurrent 401s only trigger ONE /refresh call, not one per
 // in-flight request. Every caller awaits the same promise.
