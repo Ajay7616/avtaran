@@ -15,6 +15,8 @@ const contactRoutes = require("./routes/contactRoutes");
 const careerRoutes = require("./routes/careerRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 
+const { decryptRequest } = require("./middleware/encryptionMiddleware");
+
 const app = express();
 
 // ==============================
@@ -41,31 +43,10 @@ app.use(
 // CORS
 // ==============================
 
-// const allowedOrigins = [process.env.CLIENT_URL].filter(Boolean);
-
-// app.use(
-//   cors({
-//     origin: (origin, callback) => {
-//       // Allow Postman/server-to-server requests
-//       if (!origin) {
-//         return callback(null, true);
-//       }
-
-//       if (allowedOrigins.includes(origin)) {
-//         return callback(null, true);
-//       }
-
-//       return callback(new Error("Not allowed by CORS"));
-//     },
-
-//     credentials: true,
-//   }),
-// );
-
 const allowedOrigins = [
   process.env.CLIENT_URL,
-  "http://localhost:3000",
-  "http://localhost:5173",
+  // "http://localhost:3000",
+  // "http://localhost:5173",
 ].filter(Boolean);
 
 app.use(
@@ -95,7 +76,6 @@ app.use(
   }),
 );
 
-
 app.use(cookieParser());
 
 // ==============================
@@ -114,6 +94,13 @@ app.use(
     limit: "1mb",
   }),
 );
+
+// ==============================
+// REQUEST DECRYPTION
+// ==============================
+// Self-guarded: only acts when a request body has { encrypted: true }.
+// Safe to mount globally — every other request passes straight through.
+app.use(decryptRequest);
 
 // ==============================
 // GENERAL RATE LIMIT
@@ -158,7 +145,8 @@ const loginLimiter = rateLimit({
 // ==============================
 // HEALTH CHECK
 // ==============================
-
+// Deliberately left unencrypted — uptime monitors, load balancers, etc.
+// expect plain JSON here.
 app.get("/", (req, res) => {
   res.status(200).json({
     success: true,
@@ -170,6 +158,10 @@ app.get("/", (req, res) => {
 // ROUTES
 // ==============================
 
+// encryptResponse now lives INSIDE adminRoutes.js and authRoutes.js
+// (router.use(encryptResponse) at the top of each file), not here —
+// wrapping them again at this level would double-encrypt every
+// response. Keep these mount lines plain.
 app.use("/api/auth", loginLimiter, authRoutes);
 
 app.use("/api/contact", contactRoutes);

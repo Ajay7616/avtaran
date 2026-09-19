@@ -7,6 +7,7 @@ function ProtectedRoute() {
 
   const [status, setStatus] = useState("checking");
 
+  // Initial check on mount / route change.
   useEffect(() => {
     let cancelled = false;
 
@@ -28,6 +29,20 @@ function ProtectedRoute() {
 
     return () => {
       cancelled = true;
+    };
+  }, [location.pathname]);
+
+  // Ongoing: catches a session dying mid-use (refresh token expired or
+  // revoked) rather than only at the point a route is first entered.
+  // api.js's apiRequest fires this once a 401 can't be silently
+  // recovered by refreshing.
+  useEffect(() => {
+    const handleExpired = () => setStatus("unauthorized");
+
+    window.addEventListener("auth:expired", handleExpired);
+
+    return () => {
+      window.removeEventListener("auth:expired", handleExpired);
     };
   }, []);
 

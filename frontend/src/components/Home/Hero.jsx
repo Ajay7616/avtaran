@@ -23,8 +23,8 @@ function Hero() {
 
       <div className="wrap relative z-[3] max-w-[1200px]">
         <div className="flex flex-col">
-        <span className="font-serif text-4xl md:text-7xl font-bold tracking-[-.02em] text-teal-900">
-            Avtaran <span className="text-[#C99A2E]">Capital</span>
+        <span className="font-sans text-4xl uppercase md:text-6xl font-bold tracking-[-.02em] text-teal-900">
+            Avtaran Capital
           </span>
         </div>
         <span className="eyebrow reveal">Strategic Finance &middot; Virtual CFO &middot; Capital Advisory</span>

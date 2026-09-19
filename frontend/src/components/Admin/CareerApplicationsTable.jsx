@@ -1,8 +1,13 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import CareerApplicationModal from "./CareerApplicationModal";
-import { getCareerApplications, updateCareerStatus } from "../../api/api";
+import {
+  getCareerApplications,
+  updateCareerStatus,
+  deleteCareerApplication,
+} from "../../api/api";
 
 const ITEMS_PER_PAGE = 5;
+const POLL_INTERVAL = 15000; // matches the dashboard stats refetch cadence
 
 function formatDate(iso) {
   if (!iso) return "—";
@@ -17,11 +22,11 @@ function StatusBadge({ status }) {
   const classes =
     status === "new"
       ? "bg-[rgba(201,154,46,.13)] text-gold-deep border-[rgba(201,154,46,.25)]"
-      : status === "hired"
-      ? "bg-[rgba(46,140,90,.12)] text-[#2f8c5a] border-[rgba(46,140,90,.25)]"
-      : status === "rejected"
-      ? "bg-[rgba(180,60,60,.1)] text-[#a33] border-[rgba(180,60,60,.25)]"
-      : "bg-[rgba(46,113,137,.1)] text-teal-800 border-[rgba(46,113,137,.2)]";
+      : status === "selected"
+        ? "bg-[rgba(46,140,90,.12)] text-[#2f8c5a] border-[rgba(46,140,90,.25)]"
+        : status === "rejected"
+          ? "bg-[rgba(180,60,60,.1)] text-[#a33] border-[rgba(180,60,60,.25)]"
+          : "bg-[rgba(46,113,137,.1)] text-teal-800 border-[rgba(46,113,137,.2)]";
 
   return (
     <span
@@ -35,7 +40,7 @@ function StatusBadge({ status }) {
   );
 }
 
-function CareerApplicationsTable() {
+function CareerApplicationsTable({ onStatUpdate }) {
   const [applications, setApplications] = useState([]);
   const [pagination, setPagination] = useState({
     page: 1,
@@ -47,8 +52,27 @@ function CareerApplicationsTable() {
   const [error, setError] = useState("");
   const [selectedApplication, setSelectedApplication] = useState(null);
 
-  const loadApplications = useCallback((page) => {
-    setLoading(true);
+  const [pendingDelete, setPendingDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Refs so the poll interval (set up once) always reads current values
+  // without needing to be torn down and recreated every render.
+  const pageRef = useRef(pagination.page);
+  const modalOpenRef = useRef(false);
+
+  useEffect(() => {
+    pageRef.current = pagination.page;
+  }, [pagination.page]);
+
+  useEffect(() => {
+    modalOpenRef.current = Boolean(selectedApplication || pendingDelete);
+  }, [selectedApplication, pendingDelete]);
+
+  // silent = true skips the loading spinner, used for background polls
+  // so newly-submitted applications appear without flashing the whole
+  // table into a loading state every 15 seconds.
+  const loadApplications = useCallback((page, silent = false) => {
+    if (!silent) setLoading(true);
     setError("");
 
     getCareerApplications({ page, limit: ITEMS_PER_PAGE })
@@ -60,18 +84,33 @@ function CareerApplicationsTable() {
             totalPages: 1,
             total: 0,
             limit: ITEMS_PER_PAGE,
-          }
+          },
         );
       })
       .catch((err) => {
         console.error("Get career applications error:", err);
-        setError(err.message || "Unable to load applications.");
+        if (!silent) setError(err.message || "Unable to load applications.");
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (!silent) setLoading(false);
+      });
   }, []);
 
   useEffect(() => {
     loadApplications(1);
+  }, [loadApplications]);
+
+  // Background poll: keeps the table in sync with new submissions the
+  // same way the dashboard stats already do, without a manual refresh.
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Skip while a modal is open so we don't swap data out from under
+      // the admin mid-review or mid-delete-confirmation.
+      if (modalOpenRef.current) return;
+      loadApplications(pageRef.current, true);
+    }, POLL_INTERVAL);
+
+    return () => clearInterval(interval);
   }, [loadApplications]);
 
   const handlePrevious = () => {
@@ -79,24 +118,69 @@ function CareerApplicationsTable() {
   };
 
   const handleNext = () => {
-    if (pagination.page < pagination.totalPages) loadApplications(pagination.page + 1);
+    if (pagination.page < pagination.totalPages)
+      loadApplications(pagination.page + 1);
   };
 
   const handlePageChange = (page) => loadApplications(page);
 
-  const handleStatusChange = async (id, status) => {
+  const handleStatusChange = async (id, status, extra = {}) => {
     try {
-      await updateCareerStatus(id, status);
+      await updateCareerStatus(id, status, extra);
+
+      const patch = {
+        status,
+        ...(extra.interviewDate
+          ? {
+              interviewSchedule: {
+                date: extra.interviewDate,
+                time: extra.interviewTime,
+              },
+            }
+          : {}),
+      };
 
       setApplications((prev) =>
-        prev.map((app) => (app._id === id ? { ...app, status } : app))
+        prev.map((app) => (app._id === id ? { ...app, ...patch } : app)),
       );
 
       setSelectedApplication((prev) =>
-        prev && prev._id === id ? { ...prev, status } : prev
+        prev && prev._id === id ? { ...prev, ...patch } : prev,
       );
     } catch (err) {
       console.error("Update career status error:", err);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!pendingDelete) return;
+
+    try {
+      setIsDeleting(true);
+      await deleteCareerApplication(pendingDelete._id);
+
+      setApplications((prev) =>
+        prev.filter((application) => application._id !== pendingDelete._id),
+      );
+
+      setPagination((prev) => ({
+        ...prev,
+        total: Math.max(0, prev.total - 1),
+      }));
+
+      if (onStatUpdate) {
+        onStatUpdate(pendingDelete.status);
+      }
+
+      if (selectedApplication?._id === pendingDelete._id) {
+        setSelectedApplication(null);
+      }
+      setPendingDelete(null);
+    } catch (err) {
+      console.error("Delete career application error:", err);
+      setError(err.message || "Unable to delete application.");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -149,7 +233,10 @@ function CareerApplicationsTable() {
             <tbody>
               {loading && (
                 <tr>
-                  <td colSpan={5} className="px-5 py-10 text-center text-muted text-[.85rem]">
+                  <td
+                    colSpan={5}
+                    className="px-5 py-10 text-center text-muted text-[.85rem]"
+                  >
                     Loading applications…
                   </td>
                 </tr>
@@ -157,7 +244,10 @@ function CareerApplicationsTable() {
 
               {!loading && applications.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-5 py-10 text-center text-muted text-[.85rem]">
+                  <td
+                    colSpan={5}
+                    className="px-5 py-10 text-center text-muted text-[.85rem]"
+                  >
                     No applications yet.
                   </td>
                 </tr>
@@ -185,8 +275,12 @@ function CareerApplicationsTable() {
                     </td>
 
                     <td className="px-5 py-4">
-                      <div className="text-teal-900 text-[.78rem]">{application.email}</div>
-                      <div className="text-muted text-[.72rem] mt-0.5">{application.phone}</div>
+                      <div className="text-teal-900 text-[.78rem]">
+                        {application.email}
+                      </div>
+                      <div className="text-muted text-[.72rem] mt-0.5">
+                        {application.phone}
+                      </div>
                     </td>
 
                     <td className="px-5 py-4">
@@ -194,13 +288,23 @@ function CareerApplicationsTable() {
                     </td>
 
                     <td className="px-5 py-4">
-                      <button
-                        type="button"
-                        onClick={() => setSelectedApplication(application)}
-                        className="text-[.75rem] font-semibold text-teal-800 hover:text-gold-deep transition-colors"
-                      >
-                        View
-                      </button>
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedApplication(application)}
+                          className="text-[.75rem] font-semibold text-teal-800 hover:text-gold-deep transition-colors"
+                        >
+                          View
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setPendingDelete(application)}
+                          className="text-[.75rem] font-semibold text-[#a33] hover:text-red-700 transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -212,13 +316,18 @@ function CareerApplicationsTable() {
           <div className="text-[.75rem] text-muted">
             Showing{" "}
             <span className="font-semibold text-teal-900">
-              {pagination.total === 0 ? 0 : (pagination.page - 1) * pagination.limit + 1}
+              {pagination.total === 0
+                ? 0
+                : (pagination.page - 1) * pagination.limit + 1}
             </span>{" "}
             –{" "}
             <span className="font-semibold text-teal-900">
               {Math.min(pagination.page * pagination.limit, pagination.total)}
             </span>{" "}
-            of <span className="font-semibold text-teal-900">{pagination.total}</span>
+            of{" "}
+            <span className="font-semibold text-teal-900">
+              {pagination.total}
+            </span>
           </div>
 
           <div className="flex items-center gap-1.5">
@@ -236,21 +345,23 @@ function CareerApplicationsTable() {
               ←
             </button>
 
-            {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                type="button"
-                onClick={() => handlePageChange(page)}
-                className={
-                  "w-9 h-9 rounded-lg border text-[.8rem] font-semibold transition-all " +
-                  (pagination.page === page
-                    ? "bg-teal-800 text-white border-teal-800"
-                    : "bg-white text-teal-800 border-line hover:bg-gold-2 hover:border-gold-1")
-                }
-              >
-                {page}
-              </button>
-            ))}
+            {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(
+              (page) => (
+                <button
+                  key={page}
+                  type="button"
+                  onClick={() => handlePageChange(page)}
+                  className={
+                    "w-9 h-9 rounded-lg border text-[.8rem] font-semibold transition-all " +
+                    (pagination.page === page
+                      ? "bg-teal-800 text-white border-teal-800"
+                      : "bg-white text-teal-800 border-line hover:bg-gold-2 hover:border-gold-1")
+                  }
+                >
+                  {page}
+                </button>
+              ),
+            )}
 
             <button
               type="button"
@@ -275,6 +386,53 @@ function CareerApplicationsTable() {
           onClose={() => setSelectedApplication(null)}
           onStatusChange={handleStatusChange}
         />
+      )}
+
+      {pendingDelete && (
+        <div
+          className="fixed inset-0 z-[2200] bg-[rgba(11,35,44,.55)] backdrop-blur-sm flex items-center justify-center p-5"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget && !isDeleting) setPendingDelete(null);
+          }}
+        >
+          <div className="bg-white rounded-[20px] shadow-brand-md w-full max-w-[400px] p-6">
+            <div className="w-10 h-10 rounded-full bg-[rgba(180,60,60,.1)] text-[#a33] flex items-center justify-center text-lg font-bold mb-4">
+              !
+            </div>
+
+            <h3 className="font-serif text-[1.2rem] text-teal-900 font-semibold mb-1.5">
+              Delete Application
+            </h3>
+
+            <p className="text-muted text-[.85rem] mb-6 leading-relaxed">
+              Are you sure you want to delete the application for{" "}
+              <strong className="text-teal-900">
+                {pendingDelete.firstName} {pendingDelete.lastName}
+              </strong>
+              ? This action cannot be undone.
+            </p>
+
+            <div className="flex justify-end gap-2.5">
+              <button
+                type="button"
+                onClick={() => setPendingDelete(null)}
+                disabled={isDeleting}
+                className="px-4 py-2 rounded-lg text-[.8rem] font-semibold text-teal-800 hover:bg-cream disabled:opacity-40"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                disabled={isDeleting}
+                className="px-4 py-2 rounded-lg text-[.8rem] font-semibold bg-[#a33] text-white hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center gap-2"
+              >
+                {isDeleting ? "Deleting..." : "Yes, Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );

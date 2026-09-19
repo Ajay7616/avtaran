@@ -21,9 +21,7 @@ const decryptRequest = (req, res, next) => {
     // Normal FormData / multipart requests should NOT
     // go through this middleware.
     if (
-      req.headers["content-type"]?.includes(
-        "multipart/form-data"
-      )
+      req.headers["content-type"]?.includes("multipart/form-data")
     ) {
       return next();
     }
@@ -37,10 +35,7 @@ const decryptRequest = (req, res, next) => {
 
     next();
   } catch (error) {
-    console.error(
-      "Request decryption error:",
-      error.message
-    );
+    console.error("Request decryption error:", error.message);
 
     return res.status(400).json({
       success: false,
@@ -63,10 +58,7 @@ const encryptResponse = (req, res, next) => {
         payload: encryptPayload(data),
       });
     } catch (error) {
-      console.error(
-        "Response encryption error:",
-        error
-      );
+      console.error("Response encryption error:", error);
 
       return originalJson({
         success: false,

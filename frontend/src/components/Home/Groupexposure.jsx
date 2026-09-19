@@ -42,7 +42,7 @@ function MarqueeRow({ images, direction = "left" }) {
             key={i}
             src={src}
             alt=""
-            className="shrink-0 h-32 mob:h-24 w-auto object-contain"
+            className="shrink-0 h-24 mob:h-20 w-auto object-contain"
           />
         ))}
       </div>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import DetailItem from "./DetailItem";
 
 const STATUS_OPTIONS = ["new", "read", "replied", "closed"];
@@ -13,6 +13,30 @@ function formatDate(iso) {
 }
 
 function ContactEnquiryModal({ contact, onClose, onStatusChange }) {
+  const [pendingReply, setPendingReply] = useState(false);
+  const [replyMessage, setReplyMessage] = useState("");
+
+  const handleStatusSelect = (e) => {
+    const newStatus = e.target.value;
+
+    if (newStatus === "replied") {
+      setReplyMessage("");
+      setPendingReply(true);
+      return;
+    }
+
+    onStatusChange(contact._id, newStatus);
+  };
+
+  const handleConfirmReply = () => {
+    if (!replyMessage.trim()) return;
+
+    onStatusChange(contact._id, "replied", { replyMessage });
+    setPendingReply(false);
+  };
+
+  const handleCancelReply = () => setPendingReply(false);
+
   return (
     <div
       className="fixed inset-0 z-[2000] bg-[rgba(11,35,44,.55)] backdrop-blur-sm flex items-center justify-center p-5"
@@ -48,7 +72,7 @@ function ContactEnquiryModal({ contact, onClose, onStatusChange }) {
               </div>
               <select
                 value={contact.status}
-                onChange={(e) => onStatusChange(contact._id, e.target.value)}
+                onChange={handleStatusSelect}
                 className="field-input capitalize"
               >
                 {STATUS_OPTIONS.map((s) => (
@@ -79,6 +103,50 @@ function ContactEnquiryModal({ contact, onClose, onStatusChange }) {
           </div>
         </div>
       </div>
+
+      {pendingReply && (
+        <div
+          className="fixed inset-0 z-[2100] bg-[rgba(11,35,44,.55)] flex items-center justify-center p-5"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) handleCancelReply();
+          }}
+        >
+          <div className="bg-white rounded-2xl shadow-brand-md w-full max-w-[480px] p-6">
+            <h4 className="font-serif text-[1.15rem] text-teal-900 font-semibold mb-1">
+              Reply to {contact.name}
+            </h4>
+            <p className="text-muted text-[.8rem] mb-5">
+              This message will be emailed directly to {contact.email}.
+            </p>
+
+            <textarea
+              value={replyMessage}
+              onChange={(e) => setReplyMessage(e.target.value)}
+              rows={6}
+              placeholder="Write your reply here…"
+              className="field-input resize-none"
+            />
+
+            <div className="flex justify-end gap-2 mt-5">
+              <button
+                type="button"
+                onClick={handleCancelReply}
+                className="px-4 py-2 rounded-lg text-[.8rem] font-semibold text-teal-800 hover:bg-cream"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={!replyMessage.trim()}
+                onClick={handleConfirmReply}
+                className="px-4 py-2 rounded-lg text-[.8rem] font-semibold bg-teal-800 text-white disabled:opacity-40"
+              >
+                Send Reply
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

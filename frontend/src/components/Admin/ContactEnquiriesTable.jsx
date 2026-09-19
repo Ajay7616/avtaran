@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import ContactEnquiryModal from "./ContactEnquiryModal";
-import { getContacts, updateContactStatus } from "../../api/api";
+import { getContacts, updateContactStatus, deleteContact } from "../../api/api";
 
 const ITEMS_PER_PAGE = 5;
+const POLL_INTERVAL = 15000; // matches the dashboard stats refetch cadence
 
 function formatDate(iso) {
   if (!iso) return "—";
@@ -18,8 +19,8 @@ function StatusBadge({ status }) {
     status === "new"
       ? "bg-[rgba(201,154,46,.13)] text-gold-deep border-[rgba(201,154,46,.25)]"
       : status === "closed"
-      ? "bg-[rgba(90,112,121,.12)] text-muted border-[rgba(90,112,121,.25)]"
-      : "bg-[rgba(46,113,137,.1)] text-teal-800 border-[rgba(46,113,137,.2)]";
+        ? "bg-[rgba(90,112,121,.12)] text-muted border-[rgba(90,112,121,.25)]"
+        : "bg-[rgba(46,113,137,.1)] text-teal-800 border-[rgba(46,113,137,.2)]";
 
   return (
     <span
@@ -33,7 +34,7 @@ function StatusBadge({ status }) {
   );
 }
 
-function ContactEnquiriesTable() {
+function ContactEnquiriesTable({ onStatUpdate }) {
   const [contacts, setContacts] = useState([]);
   const [pagination, setPagination] = useState({
     page: 1,
@@ -45,8 +46,25 @@ function ContactEnquiriesTable() {
   const [error, setError] = useState("");
   const [selectedContact, setSelectedContact] = useState(null);
 
-  const loadContacts = useCallback((page) => {
-    setLoading(true);
+  const [pendingDelete, setPendingDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const pageRef = useRef(pagination.page);
+  const modalOpenRef = useRef(false);
+
+  useEffect(() => {
+    pageRef.current = pagination.page;
+  }, [pagination.page]);
+
+  useEffect(() => {
+    modalOpenRef.current = Boolean(selectedContact || pendingDelete);
+  }, [selectedContact, pendingDelete]);
+
+  // silent = true skips the loading spinner, used for background polls
+  // so newly-submitted enquiries appear without flashing the whole
+  // table into a loading state every 15 seconds.
+  const loadContacts = useCallback((page, silent = false) => {
+    if (!silent) setLoading(true);
     setError("");
 
     getContacts({ page, limit: ITEMS_PER_PAGE })
@@ -58,18 +76,32 @@ function ContactEnquiriesTable() {
             totalPages: 1,
             total: 0,
             limit: ITEMS_PER_PAGE,
-          }
+          },
         );
       })
       .catch((err) => {
         console.error("Get contacts error:", err);
-        setError(err.message || "Unable to load contact enquiries.");
+        if (!silent)
+          setError(err.message || "Unable to load contact enquiries.");
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (!silent) setLoading(false);
+      });
   }, []);
 
   useEffect(() => {
     loadContacts(1);
+  }, [loadContacts]);
+
+  // Background poll: keeps the table in sync with new submissions the
+  // same way the dashboard stats already do, without a manual refresh.
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (modalOpenRef.current) return;
+      loadContacts(pageRef.current, true);
+    }, POLL_INTERVAL);
+
+    return () => clearInterval(interval);
   }, [loadContacts]);
 
   const handlePrevious = () => {
@@ -77,24 +109,66 @@ function ContactEnquiriesTable() {
   };
 
   const handleNext = () => {
-    if (pagination.page < pagination.totalPages) loadContacts(pagination.page + 1);
+    if (pagination.page < pagination.totalPages)
+      loadContacts(pagination.page + 1);
   };
 
   const handlePageChange = (page) => loadContacts(page);
 
-  const handleStatusChange = async (id, status) => {
+  const handleStatusChange = async (id, status, extra = {}) => {
     try {
-      await updateContactStatus(id, status);
+      await updateContactStatus(id, status, extra);
 
       setContacts((prev) =>
-        prev.map((c) => (c._id === id ? { ...c, status } : c))
+        prev.map((c) => (c._id === id ? { ...c, status } : c)),
       );
 
       setSelectedContact((prev) =>
-        prev && prev._id === id ? { ...prev, status } : prev
+        prev && prev._id === id ? { ...prev, status } : prev,
       );
     } catch (err) {
       console.error("Update contact status error:", err);
+    }
+  };
+
+  const handleView = (contact) => {
+    setSelectedContact(contact);
+
+    if (contact.status === "new") {
+      handleStatusChange(contact._id, "read");
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!pendingDelete) return;
+
+    try {
+      setIsDeleting(true);
+      await deleteContact(pendingDelete._id);
+
+      setContacts((prev) =>
+        prev.filter((contact) => contact._id !== pendingDelete._id),
+      );
+
+      setPagination((prev) => ({
+        ...prev,
+        total: Math.max(0, prev.total - 1),
+      }));
+
+      // Trigger dashboard stat update
+      if (onStatUpdate) {
+        onStatUpdate(pendingDelete.status, "contact");
+      }
+
+      if (selectedContact?._id === pendingDelete._id) {
+        setSelectedContact(null);
+      }
+      setPendingDelete(null);
+    } catch (err) {
+      console.error("Delete contact error:", err);
+      setError(err.message || "Unable to delete contact enquiry.");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -147,7 +221,10 @@ function ContactEnquiriesTable() {
             <tbody>
               {loading && (
                 <tr>
-                  <td colSpan={5} className="px-5 py-10 text-center text-muted text-[.85rem]">
+                  <td
+                    colSpan={5}
+                    className="px-5 py-10 text-center text-muted text-[.85rem]"
+                  >
                     Loading enquiries…
                   </td>
                 </tr>
@@ -155,7 +232,10 @@ function ContactEnquiriesTable() {
 
               {!loading && contacts.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-5 py-10 text-center text-muted text-[.85rem]">
+                  <td
+                    colSpan={5}
+                    className="px-5 py-10 text-center text-muted text-[.85rem]"
+                  >
                     No enquiries yet.
                   </td>
                 </tr>
@@ -193,13 +273,23 @@ function ContactEnquiriesTable() {
                     </td>
 
                     <td className="px-5 py-4">
-                      <button
-                        type="button"
-                        onClick={() => setSelectedContact(contact)}
-                        className="text-[.75rem] font-semibold text-teal-800 hover:text-gold-deep transition-colors"
-                      >
-                        View
-                      </button>
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => handleView(contact)}
+                          className="text-[.75rem] font-semibold text-teal-800 hover:text-gold-deep transition-colors"
+                        >
+                          View
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setPendingDelete(contact)}
+                          className="text-[.75rem] font-semibold text-[#a33] hover:text-red-700 transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -211,13 +301,18 @@ function ContactEnquiriesTable() {
           <div className="text-[.75rem] text-muted">
             Showing{" "}
             <span className="font-semibold text-teal-900">
-              {pagination.total === 0 ? 0 : (pagination.page - 1) * pagination.limit + 1}
+              {pagination.total === 0
+                ? 0
+                : (pagination.page - 1) * pagination.limit + 1}
             </span>{" "}
             –{" "}
             <span className="font-semibold text-teal-900">
               {Math.min(pagination.page * pagination.limit, pagination.total)}
             </span>{" "}
-            of <span className="font-semibold text-teal-900">{pagination.total}</span>
+            of{" "}
+            <span className="font-semibold text-teal-900">
+              {pagination.total}
+            </span>
           </div>
 
           <div className="flex items-center gap-1.5">
@@ -235,21 +330,23 @@ function ContactEnquiriesTable() {
               ←
             </button>
 
-            {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                type="button"
-                onClick={() => handlePageChange(page)}
-                className={
-                  "w-9 h-9 rounded-lg border text-[.8rem] font-semibold transition-all " +
-                  (pagination.page === page
-                    ? "bg-teal-800 text-white border-teal-800"
-                    : "bg-white text-teal-800 border-line hover:bg-gold-2 hover:border-gold-1")
-                }
-              >
-                {page}
-              </button>
-            ))}
+            {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(
+              (page) => (
+                <button
+                  key={page}
+                  type="button"
+                  onClick={() => handlePageChange(page)}
+                  className={
+                    "w-9 h-9 rounded-lg border text-[.8rem] font-semibold transition-all " +
+                    (pagination.page === page
+                      ? "bg-teal-800 text-white border-teal-800"
+                      : "bg-white text-teal-800 border-line hover:bg-gold-2 hover:border-gold-1")
+                  }
+                >
+                  {page}
+                </button>
+              ),
+            )}
 
             <button
               type="button"
@@ -274,6 +371,53 @@ function ContactEnquiriesTable() {
           onClose={() => setSelectedContact(null)}
           onStatusChange={handleStatusChange}
         />
+      )}
+
+      {pendingDelete && (
+        <div
+          className="fixed inset-0 z-[2200] bg-[rgba(11,35,44,.55)] backdrop-blur-sm flex items-center justify-center p-5"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget && !isDeleting) setPendingDelete(null);
+          }}
+        >
+          <div className="bg-white rounded-[20px] shadow-brand-md w-full max-w-[400px] p-6">
+            <div className="w-10 h-10 rounded-full bg-[rgba(180,60,60,.1)] text-[#a33] flex items-center justify-center text-lg font-bold mb-4">
+              !
+            </div>
+
+            <h3 className="font-serif text-[1.2rem] text-teal-900 font-semibold mb-1.5">
+              Delete Enquiry
+            </h3>
+
+            <p className="text-muted text-[.85rem] mb-6 leading-relaxed">
+              Are you sure you want to delete the enquiry from{" "}
+              <strong className="text-teal-900">
+                {pendingDelete.name}
+              </strong>
+              ? This action cannot be undone.
+            </p>
+
+            <div className="flex justify-end gap-2.5">
+              <button
+                type="button"
+                onClick={() => setPendingDelete(null)}
+                disabled={isDeleting}
+                className="px-4 py-2 rounded-lg text-[.8rem] font-semibold text-teal-800 hover:bg-cream disabled:opacity-40"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                disabled={isDeleting}
+                className="px-4 py-2 rounded-lg text-[.8rem] font-semibold bg-[#a33] text-white hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center gap-2"
+              >
+                {isDeleting ? "Deleting..." : "Yes, Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );

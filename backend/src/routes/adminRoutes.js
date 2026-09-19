@@ -1,6 +1,7 @@
 const express = require("express");
 
 const protect = require("../middleware/authMiddleware");
+const { encryptResponse } = require("../middleware/encryptionMiddleware");
 
 const {
   getDashboardStats,
@@ -24,6 +25,12 @@ const router = express.Router();
 
 // Everything in this router requires admin login
 router.use(protect);
+
+// Encrypts every res.json() call made from this point on, for every
+// route below. Doesn't touch res.download()/res.sendFile() — so the
+// resume download route stays a normal binary file response, as it
+// should, since you can't meaningfully JSON-encrypt a PDF/DOCX stream.
+router.use(encryptResponse);
 
 // Contacts
 router.get("/contacts", getContacts);

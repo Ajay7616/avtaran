@@ -45,13 +45,13 @@ const NAV_SERVICE_LINKS = [
 
 
 const TEAM = [
-  { initial: "H", name: "Hardik", role: "Founder & CEO", featured: true },
-  { initial: "C", name: "Chetna", role: "Non-Executive Director" },
-  { initial: "P", name: "Pritesh", role: "Non-Executive Director" },
-  { initial: "A", name: "Ashish", role: "Non-Executive Director" },
-  { initial: "D", name: "Dilip Shah", role: "Ret. IRS" },
-  { initial: "N", name: "Nikhil", role: "Business Head — Canada & SA" },
-  { initial: "P", name: "Paresh", role: "Business Head — North America" },
+  { initial: "H", name: "Hardik Khatri", role: "Founder & CEO", featured: true },
+  { initial: "C", name: "Chetna Khatri", role: "Non-Executive Director" },
+  { initial: "P", name: "Pritesh Gada", role: "Non-Executive Director" },
+  { initial: "A", name: "Ashish Desai", role: "Non-Executive Director" },
+  { initial: "D", name: "Dilip Kumar Shah", role: "Ret. IRS" },
+  { initial: "N", name: "Nikhil Poddar", role: "Business Head — Canada & SA" },
+  { initial: "P", name: "Paresh Shah", role: "Business Head — North America" },
 ];
 
 

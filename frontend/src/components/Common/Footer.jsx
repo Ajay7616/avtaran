@@ -79,9 +79,7 @@ function Footer() {
                 type="button"
                 aria-label="LinkedIn"
                 className="foot-social-link"
-                onClick={() => {
-                  // Add official LinkedIn URL when available
-                }}
+                onClick={() => window.open("https://www.linkedin.com/company/avtaran-capital-advisors-pvt-ltd", "_blank", "noopener,noreferrer")} 
               >
                 <svg
                   width="18"

@@ -1,9 +1,11 @@
 import React, { useRef, useState } from "react";
 import { submitContact } from "../../api/api";
+import Loader from "../Common/Loader";
 
 function Contact() {
   const nameRef = useRef(null);
   const emailRef = useRef(null);
+  const phoneRef = useRef(null);
   const messageRef = useRef(null);
   const formRef = useRef(null);
 
@@ -12,6 +14,7 @@ function Contact() {
   const [errFields, setErrFields] = useState({
     name: false,
     email: false,
+    phone: false,
     message: false,
   });
 
@@ -20,6 +23,19 @@ function Contact() {
     type: null,
     text: "",
   });
+
+  // Helper function to validate email format
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  // Helper function to validate phone number (digits, optional +, spaces, dashes)
+  const isValidPhone = (phone) => {
+    if (!phone) return true; // Phone is optional, so empty is valid
+    const phoneRegex = /^\+?[\d\s\-()]{7,15}$/;
+    return phoneRegex.test(phone);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,21 +51,30 @@ function Contact() {
 
     const name = formData.get("name")?.trim() || "";
     const email = formData.get("email")?.trim() || "";
+    const phone = formData.get("phone")?.trim() || "";
     const message = formData.get("message")?.trim() || "";
 
-    // Validate required fields
+    // Validate fields
     const errors = {
       name: !name,
-      email: !email,
+      email: !email || !isValidEmail(email),
+      phone: !isValidPhone(phone),
       message: !message,
     };
 
-    if (errors.name || errors.email || errors.message) {
+    if (errors.name || errors.email || errors.phone || errors.message) {
       setErrFields(errors);
+
+      let errorMessage = "Please fill in all required fields.";
+      if (email && !isValidEmail(email)) {
+        errorMessage = "Please enter a valid email address.";
+      } else if (phone && !isValidPhone(phone)) {
+        errorMessage = "Please enter a valid phone number (digits only).";
+      }
 
       setFormMsg({
         type: "err",
-        text: "Please fill in all required fields.",
+        text: errorMessage,
       });
 
       // Focus first invalid field
@@ -57,6 +82,8 @@ function Contact() {
         nameRef.current?.focus();
       } else if (errors.email) {
         emailRef.current?.focus();
+      } else if (errors.phone) {
+        phoneRef.current?.focus();
       } else if (errors.message) {
         messageRef.current?.focus();
       }
@@ -68,6 +95,7 @@ function Contact() {
     setErrFields({
       name: false,
       email: false,
+      phone: false,
       message: false,
     });
 
@@ -78,7 +106,7 @@ function Contact() {
         name,
         company: formData.get("company")?.trim() || "",
         email,
-        phone: formData.get("phone")?.trim() || "",
+        phone,
         service: formData.get("service") || "",
         message,
       });
@@ -217,12 +245,19 @@ function Contact() {
 
         {/* Contact Form */}
         <form
-          className="cform reveal"
+          className="cform reveal relative"
           id="contactForm"
           noValidate
           ref={formRef}
           onSubmit={handleSubmit}
         >
+          {/* Loader Overlay inside the form when submitting */}
+          {submitting && (
+            <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px] z-10 flex items-center justify-center rounded-xl">
+              <Loader />
+            </div>
+          )}
+
           {/* Success / Error Message */}
           {formMsg.type && (
             <div className={`form-msg ${formMsg.type}`} id="formMsg">
@@ -305,7 +340,10 @@ function Contact() {
                 id="phone"
                 name="phone"
                 placeholder="+91"
-                className="field-input"
+                ref={phoneRef}
+                className={`field-input ${
+                  errFields.phone ? "err-field" : ""
+                }`}
               />
             </div>
           </div>

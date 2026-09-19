@@ -1,15 +1,42 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { submitCareerApplication } from "../../api/api";
+import Loader from "../Common/Loader";
 
 function CareerApplication() {
+  const firstNameRef = useRef(null);
+  const lastNameRef = useRef(null);
+  const emailRef = useRef(null);
+  const phoneRef = useRef(null);
+  const positionRef = useRef(null);
+
   const [file, setFile] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+
+  const [errFields, setErrFields] = useState({
+    firstName: false,
+    lastName: false,
+    email: false,
+    phone: false,
+    position: false,
+  });
 
   // type: "ok" | "err" | null
   const [formMessage, setFormMessage] = useState({
     type: null,
     text: "",
   });
+
+  // Helper function to validate email format
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  // Helper function to validate phone number
+  const isValidPhone = (phone) => {
+    const phoneRegex = /^\+?[\d\s\-()]{7,15}$/;
+    return phoneRegex.test(phone);
+  };
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files?.[0];
@@ -38,7 +65,7 @@ function CareerApplication() {
     if (!allowedTypes.includes(selectedFile.type)) {
       setFormMessage({
         type: "err",
-        text: "Please upload a PDF or DOCX file.",
+        text: "Please upload a valid PDF or DOCX file.",
       });
 
       // Clear invalid file
@@ -66,6 +93,61 @@ function CareerApplication() {
       text: "",
     });
 
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    const firstName = formData.get("firstName")?.trim() || "";
+    const lastName = formData.get("lastName")?.trim() || "";
+    const email = formData.get("email")?.trim() || "";
+    const phone = formData.get("phone")?.trim() || "";
+    const position = formData.get("position")?.trim() || "";
+
+    // Validate fields
+    const errors = {
+      firstName: !firstName,
+      lastName: !lastName,
+      email: !email || !isValidEmail(email),
+      phone: !phone || !isValidPhone(phone),
+      position: !position,
+    };
+
+    if (
+      errors.firstName ||
+      errors.lastName ||
+      errors.email ||
+      errors.phone ||
+      errors.position
+    ) {
+      setErrFields(errors);
+
+      let errorMessage = "Please fill in all required fields.";
+      if (email && !isValidEmail(email)) {
+        errorMessage = "Please enter a valid email address.";
+      } else if (phone && !isValidPhone(phone)) {
+        errorMessage = "Please enter a valid phone number.";
+      }
+
+      setFormMessage({
+        type: "err",
+        text: errorMessage,
+      });
+
+      // Focus first invalid field
+      if (errors.firstName) {
+        firstNameRef.current?.focus();
+      } else if (errors.lastName) {
+        lastNameRef.current?.focus();
+      } else if (errors.email) {
+        emailRef.current?.focus();
+      } else if (errors.phone) {
+        phoneRef.current?.focus();
+      } else if (errors.position) {
+        positionRef.current?.focus();
+      }
+
+      return;
+    }
+
     if (!file) {
       setFormMessage({
         type: "err",
@@ -75,11 +157,17 @@ function CareerApplication() {
       return;
     }
 
+    // Clear error states
+    setErrFields({
+      firstName: false,
+      lastName: false,
+      email: false,
+      phone: false,
+      position: false,
+    });
+
     try {
       setSubmitting(true);
-
-      const form = e.currentTarget;
-      const formData = new FormData(form);
 
       await submitCareerApplication(formData);
 
@@ -105,7 +193,7 @@ function CareerApplication() {
   };
 
   return (
-    <section className="py-[90px] bg-cream">
+    <section className="py-[90px] bg-cream relative">
       <div className="wrap">
         <div className="grid grid-cols-[.8fr_1.2fr] tab:grid-cols-1 gap-14 items-start">
           {/* Left content */}
@@ -140,8 +228,15 @@ function CareerApplication() {
           </div>
 
           {/* Application form */}
-          <div className="reveal cform">
-            <form onSubmit={handleSubmit} noValidate>
+          <div className="reveal cform relative">
+            <form onSubmit={handleSubmit} noValidate className="relative">
+              {/* Loader Overlay inside the form when submitting */}
+              {submitting && (
+                <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px] z-10 flex items-center justify-center rounded-xl">
+                  <Loader />
+                </div>
+              )}
+
               {/* Success / Error Message */}
               {formMessage.type && (
                 <div className={`form-msg ${formMessage.type}`} id="formMsg">
@@ -156,16 +251,18 @@ function CareerApplication() {
                     htmlFor="firstName"
                     className="block text-[.88rem] font-semibold text-teal-900 mb-2"
                   >
-                    First Name
+                    First Name *
                   </label>
 
                   <input
                     id="firstName"
                     name="firstName"
                     type="text"
-                    required
+                    ref={firstNameRef}
                     placeholder="Enter your First Name"
-                    className="field-input"
+                    className={`field-input ${
+                      errFields.firstName ? "err-field" : ""
+                    }`}
                   />
                 </div>
 
@@ -174,16 +271,18 @@ function CareerApplication() {
                     htmlFor="lastName"
                     className="block text-[.88rem] font-semibold text-teal-900 mb-2"
                   >
-                    Last Name
+                    Last Name *
                   </label>
 
                   <input
                     id="lastName"
                     name="lastName"
                     type="text"
-                    required
+                    ref={lastNameRef}
                     placeholder="Enter your Last Name"
-                    className="field-input"
+                    className={`field-input ${
+                      errFields.lastName ? "err-field" : ""
+                    }`}
                   />
                 </div>
               </div>
@@ -195,16 +294,18 @@ function CareerApplication() {
                     htmlFor="email"
                     className="block text-[.88rem] font-semibold text-teal-900 mb-2"
                   >
-                    Email Address
+                    Email Address *
                   </label>
 
                   <input
                     id="email"
                     name="email"
                     type="email"
-                    required
-                    placeholder="Enter your Email"
-                    className="field-input"
+                    ref={emailRef}
+                    placeholder="you@company.com"
+                    className={`field-input ${
+                      errFields.email ? "err-field" : ""
+                    }`}
                   />
                 </div>
 
@@ -213,16 +314,18 @@ function CareerApplication() {
                     htmlFor="phone"
                     className="block text-[.88rem] font-semibold text-teal-900 mb-2"
                   >
-                    Phone Number
+                    Phone Number *
                   </label>
 
                   <input
                     id="phone"
                     name="phone"
                     type="tel"
-                    required
-                    placeholder="Enter your Phone"
-                    className="field-input"
+                    ref={phoneRef}
+                    placeholder="+91"
+                    className={`field-input ${
+                      errFields.phone ? "err-field" : ""
+                    }`}
                   />
                 </div>
               </div>
@@ -233,16 +336,18 @@ function CareerApplication() {
                   htmlFor="position"
                   className="block text-[.88rem] font-semibold text-teal-900 mb-2"
                 >
-                  Preferred Position
+                  Preferred Position *
                 </label>
 
                 <input
                   id="position"
                   name="position"
                   type="text"
-                  required
+                  ref={positionRef}
                   placeholder="e.g. Frontend Developer"
-                  className="field-input"
+                  className={`field-input ${
+                    errFields.position ? "err-field" : ""
+                  }`}
                 />
               </div>
 
@@ -270,13 +375,10 @@ function CareerApplication() {
                   htmlFor="resume"
                   className="block text-[.88rem] font-semibold text-teal-900 mb-2"
                 >
-                  Upload CV / Resume
+                  Upload CV / Resume *
                 </label>
 
-                <label
-                  htmlFor="resume"
-                  className="career-upload"
-                >
+                <label htmlFor="resume" className="career-upload cursor-pointer">
                   <div className="w-11 h-11 rounded-full bg-gold-2 text-gold-deep grid place-items-center text-xl">
                     ↑
                   </div>
@@ -308,7 +410,6 @@ function CareerApplication() {
                     name="resume"
                     type="file"
                     accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                    required
                     onChange={handleFileChange}
                     className="hidden"
                   />

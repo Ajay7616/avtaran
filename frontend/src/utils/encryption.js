@@ -1,147 +1,74 @@
-const API_ENCRYPTION_KEY =
-  import.meta.env.VITE_API_ENCRYPTION_KEY;
+// Mirrors backend/utils/encryption.js exactly: AES-256-GCM, 12-byte IV,
+// ciphertext+tag combined and base64-encoded, so payloads produced by
+// one side decrypt cleanly on the other.
 
-const ALGORITHM = "AES-GCM";
-const IV_LENGTH = 12;
-const TAG_LENGTH = 128;
+const RAW_KEY = process.env.REACT_APP_API_ENCRYPTION_KEY;
 
-const getKey = async () => {
-  if (!API_ENCRYPTION_KEY) {
-    throw new Error(
-      "VITE_API_ENCRYPTION_KEY is not configured."
+if (!RAW_KEY) {
+  console.warn(
+    "REACT_APP_API_ENCRYPTION_KEY is not set — encrypted admin requests will fail.",
+  );
+}
+
+const base64ToBytes = (b64) =>
+  Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+
+const bytesToBase64 = (bytes) =>
+  btoa(String.fromCharCode(...new Uint8Array(bytes)));
+
+let keyPromise = null;
+
+const getKey = () => {
+  if (!RAW_KEY) {
+    return Promise.reject(new Error("Encryption key not configured."));
+  }
+
+  if (!keyPromise) {
+    keyPromise = crypto.subtle.importKey(
+      "raw",
+      base64ToBytes(RAW_KEY),
+      { name: "AES-GCM" },
+      false,
+      ["encrypt", "decrypt"],
     );
   }
 
-  const keyBytes = base64ToUint8Array(
-    API_ENCRYPTION_KEY
-  );
-
-  if (keyBytes.length !== 32) {
-    throw new Error(
-      "Encryption key must be exactly 32 bytes."
-    );
-  }
-
-  return crypto.subtle.importKey(
-    "raw",
-    keyBytes,
-    {
-      name: ALGORITHM,
-    },
-    false,
-    ["encrypt", "decrypt"]
-  );
+  return keyPromise;
 };
-
-const base64ToUint8Array = (base64) => {
-  const binary = atob(base64);
-
-  const bytes = new Uint8Array(
-    binary.length
-  );
-
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-
-  return bytes;
-};
-
-const uint8ArrayToBase64 = (bytes) => {
-  let binary = "";
-
-  const chunkSize = 0x8000;
-
-  for (
-    let i = 0;
-    i < bytes.length;
-    i += chunkSize
-  ) {
-    binary += String.fromCharCode(
-      ...bytes.subarray(i, i + chunkSize)
-    );
-  }
-
-  return btoa(binary);
-};
-
-// ==============================
-// ENCRYPT
-// ==============================
 
 export const encryptPayload = async (payload) => {
   const key = await getKey();
+  const iv = crypto.getRandomValues(new Uint8Array(12));
 
-  const iv = crypto.getRandomValues(
-    new Uint8Array(IV_LENGTH)
-  );
-
-  const plaintext = JSON.stringify(payload);
-
-  const encoded = new TextEncoder().encode(
-    plaintext
-  );
+  const encoded = new TextEncoder().encode(JSON.stringify(payload));
 
   const encrypted = await crypto.subtle.encrypt(
-    {
-      name: ALGORITHM,
-      iv,
-      tagLength: TAG_LENGTH,
-    },
+    { name: "AES-GCM", iv, tagLength: 128 },
     key,
-    encoded
+    encoded,
   );
 
   return {
-    iv: uint8ArrayToBase64(iv),
-    data: uint8ArrayToBase64(
-      new Uint8Array(encrypted)
-    ),
-    tagLength: TAG_LENGTH,
+    iv: bytesToBase64(iv),
+    data: bytesToBase64(encrypted), // SubtleCrypto appends the auth tag already
+    tagLength: 128,
   };
 };
 
-// ==============================
-// DECRYPT
-// ==============================
-
-export const decryptPayload = async (
-  payload
-) => {
-  if (
-    !payload ||
-    !payload.iv ||
-    !payload.data
-  ) {
-    throw new Error(
-      "Invalid encrypted response."
-    );
+export const decryptPayload = async (payload) => {
+  if (!payload || !payload.iv || !payload.data) {
+    throw new Error("Invalid encrypted payload.");
   }
 
   const key = await getKey();
+  const iv = base64ToBytes(payload.iv);
+  const data = base64ToBytes(payload.data);
 
-  const iv = base64ToUint8Array(
-    payload.iv
+  const decrypted = await crypto.subtle.decrypt(
+    { name: "AES-GCM", iv, tagLength: payload.tagLength || 128 },
+    key,
+    data,
   );
 
-  const encrypted = base64ToUint8Array(
-    payload.data
-  );
-
-  const decrypted =
-    await crypto.subtle.decrypt(
-      {
-        name: ALGORITHM,
-        iv,
-        tagLength:
-          payload.tagLength || TAG_LENGTH,
-      },
-      key,
-      encrypted
-    );
-
-  const plaintext =
-    new TextDecoder().decode(decrypted);
-
-  return JSON.parse(plaintext);
+  return JSON.parse(new TextDecoder().decode(decrypted));
 };
