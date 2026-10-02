@@ -36,6 +36,27 @@ app.use(
     crossOriginResourcePolicy: {
       policy: "cross-origin",
     },
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        imgSrc: ["'self'", "data:", "https:"],
+        connectSrc: ["'self'", "https://your-frontend-domain.vercel.app"],
+        frameAncestors: ["'none'"],
+        baseUri: ["'self'"],
+        formAction: ["'self'"],
+      },
+    },
+    referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+    permissionsPolicy: {
+      features: {
+        camera: [],
+        microphone: [],
+        geolocation: [],
+      },
+    },
   }),
 );
 
