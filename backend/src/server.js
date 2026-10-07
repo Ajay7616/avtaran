@@ -66,8 +66,8 @@ app.use((req, res, next) => {
 
 const allowedOrigins = [
   process.env.CLIENT_URL,
-  // "http://localhost:3000",
-  // "http://localhost:5173",
+  "http://localhost:3000",
+  "http://localhost:5173",
 ].filter(Boolean);
 
 app.use(
@@ -76,7 +76,11 @@ app.use(
       // Requests without an Origin header:
       // Postman, curl, server-to-server, etc.
       if (!origin) {
-        return callback(null, true);
+        if (process.env.NODE_ENV !== "production") {
+          return callback(null, true);
+        }
+        console.error("CORS rejected request with no Origin header");
+        return callback(new Error("Not allowed by CORS"));
       }
 
       if (allowedOrigins.includes(origin)) {

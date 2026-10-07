@@ -1,7 +1,4 @@
 User-agent: *
 Allow: /
-Disallow: /admin
-Disallow: /admin/login
-Disallow: /admin/dashboard
 
 Sitemap: https://avtaran.vercel.app/sitemap.xml
