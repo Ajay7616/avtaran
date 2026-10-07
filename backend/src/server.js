@@ -31,34 +31,34 @@ connectDB();
 
 app.disable("x-powered-by");
 
-app.use(
-  helmet({
-    crossOriginResourcePolicy: {
-      policy: "cross-origin",
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  crossOriginOpenerPolicy: { policy: "same-origin" },
+  strictTransportSecurity: {
+    maxAge: 63072000,
+    includeSubDomains: true,
+    preload: true,
+  },
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:"],
+      connectSrc: ["'self'", "https://your-frontend-domain.vercel.app"],
+      frameAncestors: ["'none'"],
+      baseUri: ["'self'"],
+      formAction: ["'self'"],
     },
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        scriptSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-        fontSrc: ["'self'", "https://fonts.gstatic.com"],
-        imgSrc: ["'self'", "data:", "https:"],
-        connectSrc: ["'self'", "https://your-frontend-domain.vercel.app"],
-        frameAncestors: ["'none'"],
-        baseUri: ["'self'"],
-        formAction: ["'self'"],
-      },
-    },
-    referrerPolicy: { policy: "strict-origin-when-cross-origin" },
-    permissionsPolicy: {
-      features: {
-        camera: [],
-        microphone: [],
-        geolocation: [],
-      },
-    },
-  }),
-);
+  },
+  referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+}));
+
+app.use((req, res, next) => {
+  res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  next();
+});
 
 // ==============================
 // CORS
@@ -66,8 +66,8 @@ app.use(
 
 const allowedOrigins = [
   process.env.CLIENT_URL,
-  "http://localhost:3000",
-  "http://localhost:5173",
+  // "http://localhost:3000",
+  // "http://localhost:5173",
 ].filter(Boolean);
 
 app.use(
