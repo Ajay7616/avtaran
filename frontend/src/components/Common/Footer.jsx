@@ -273,8 +273,12 @@ function Footer() {
             &copy; 2026 Avtaran Capital. All rights reserved.
           </span>
 
-          <span>
-            www.avtaran.com &middot; Privacy Policy &middot; Terms of Use
+          <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <a href="https://www.avtaran.com">www.avtaran.com</a>
+            <Link to="/privacy-policy" className="hover:text-gold-deep">Privacy Policy</Link>
+            <Link to="/terms-of-use" className="hover:text-gold-deep">Terms of Use</Link>
+            <Link to="/refund-policy" className="hover:text-gold-deep">Refund Policy</Link>
+            <Link to="/cookie-policy" className="hover:text-gold-deep">Cookie Policy</Link>
           </span>
         </div>
       </div>

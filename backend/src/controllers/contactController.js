@@ -1,5 +1,6 @@
 const Contact = require("../models/Contact");
 const { sendEmail } = require("../config/mail");
+const { isConsentGiven, buildConsent } = require("../utils/consent");
 
 /**
  * Escape user-provided values before inserting them into HTML emails.
@@ -23,6 +24,7 @@ const createContact = async (req, res) => {
       phone,
       service,
       message,
+      consent,
     } = req.body;
 
     // ==========================================
@@ -37,6 +39,13 @@ const createContact = async (req, res) => {
     }
 
 
+    if (!isConsentGiven(consent)) {
+      return res.status(400).json({
+        success: false,
+        message: "Please give your consent to continue.",
+      });
+    }
+
     // ==========================================
     // Save contact to MongoDB
     // ==========================================
@@ -48,6 +57,7 @@ const createContact = async (req, res) => {
       phone,
       service,
       message,
+      consent: buildConsent(),
     });
 
     console.log("Contact saved:", contact._id);

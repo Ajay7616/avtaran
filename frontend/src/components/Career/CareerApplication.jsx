@@ -1,5 +1,7 @@
 import React, { useRef, useState } from "react";
 import { submitCareerApplication } from "../../api/api";
+import { Link } from "react-router-dom";
+import ConsentCheckbox from "../Common/ConsentCheckbox";
 import Loader from "../Common/Loader";
 
 function CareerApplication() {
@@ -11,6 +13,7 @@ function CareerApplication() {
 
   const [file, setFile] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [consentErr, setConsentErr] = useState(false);
 
   const [errFields, setErrFields] = useState({
     firstName: false,
@@ -156,6 +159,16 @@ function CareerApplication() {
 
       return;
     }
+
+    if (formData.get("consent") !== "on") {
+      setConsentErr(true);
+      setFormMessage({
+        type: "err",
+        text: "Please tick the consent box to submit your application.",
+      });
+      return;
+    }
+    setConsentErr(false);
 
     // Clear error states
     setErrFields({
@@ -432,6 +445,18 @@ function CareerApplication() {
                   placeholder="Tell us a bit about yourself..."
                   className="field-input resize-y min-h-[170px]"
                 />
+              </div>
+
+              <div className="mt-6">
+                <ConsentCheckbox id="career-consent" invalid={consentErr}>
+                  I agree that Avtaran Capital may collect and use my details and
+                  CV to assess my application and contact me, and keep them for
+                  up to 12 months, as described in the{" "}
+                  <Link to="/privacy-policy" target="_blank" className="text-gold-deep font-semibold underline">
+                    Privacy Policy
+                  </Link>
+                  . I can withdraw consent at any time. *
+                </ConsentCheckbox>
               </div>
 
               {/* Submit */}

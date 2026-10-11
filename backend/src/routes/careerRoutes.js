@@ -1,17 +1,7 @@
-const express = require("express");
-
+const router = require("express").Router();
 const upload = require("../middleware/uploadMiddleware");
+const { createCareerApplication } = require("../controllers/careerController");
 
-const {
-  createCareerApplication,
-} = require("../controllers/careerController");
-
-const router = express.Router();
-
-router.post(
-  "/apply",
-  upload.single("resume"),
-  createCareerApplication
-);
+router.post("/apply", upload.single("resume"), createCareerApplication);
 
 module.exports = router;

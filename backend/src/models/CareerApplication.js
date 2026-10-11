@@ -48,12 +48,14 @@ const careerApplicationSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+      maxlength: 60,
     },
 
     lastName: {
       type: String,
       required: true,
       trim: true,
+      maxlength: 60,
     },
 
     email: {
@@ -61,27 +63,38 @@ const careerApplicationSchema = new mongoose.Schema(
       required: true,
       trim: true,
       lowercase: true,
+      maxlength: 254,
     },
 
     phone: {
       type: String,
       required: true,
       trim: true,
+      maxlength: 20,
     },
 
     position: {
       type: String,
       required: true,
       trim: true,
+      maxlength: 100,
     },
 
     portfolio: {
       type: String,
       trim: true,
+      maxlength: 300,
     },
 
     coverLetter: {
       type: String,
+      maxlength: 5000,
+    },
+
+    consent: {
+      given: { type: Boolean, default: false },
+      at: { type: Date },
+      policyVersion: { type: String },
     },
 
     status: {

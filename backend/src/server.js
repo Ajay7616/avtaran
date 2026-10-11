@@ -46,7 +46,7 @@ app.use(helmet({
       styleSrc: ["'self'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:"],
-      connectSrc: ["'self'", "https://your-frontend-domain.vercel.app"],
+      connectSrc: ["'self'", "https://avtaran.vercel.app/"],
       frameAncestors: ["'none'"],
       baseUri: ["'self'"],
       formAction: ["'self'"],
@@ -66,9 +66,21 @@ app.use((req, res, next) => {
 
 const allowedOrigins = [
   process.env.CLIENT_URL,
-  "http://localhost:3000",
-  "http://localhost:5173",
+  // "http://localhost:3000",
+  // "http://localhost:5173",
+  "https://uptimerobot.com",
 ].filter(Boolean);
+
+const isAllowedUptimeRobotOrigin = (origin) => {
+  if (!origin || typeof origin !== "string") {
+    return false;
+  }
+
+  return (
+    origin === "https://uptimerobot.com" ||
+    origin.endsWith(".uptimerobot.com")
+  );
+};
 
 app.use(
   cors({
@@ -83,7 +95,7 @@ app.use(
         return callback(new Error("Not allowed by CORS"));
       }
 
-      if (allowedOrigins.includes(origin)) {
+      if (allowedOrigins.includes(origin) || isAllowedUptimeRobotOrigin(origin)) {
         return callback(null, true);
       }
 
@@ -102,7 +114,6 @@ app.use(
 );
 
 app.use(cookieParser());
-
 // ==============================
 // BODY PARSING
 // ==============================
@@ -247,6 +258,10 @@ app.use((error, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  //console.log(`Server running on http://localhost:${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    //console.log(`Server running on http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;

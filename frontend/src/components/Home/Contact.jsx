@@ -1,6 +1,8 @@
 import React, { useRef, useState } from "react";
 import { submitContact } from "../../api/api";
 import Loader from "../Common/Loader";
+import ConsentCheckbox from "../Common/ConsentCheckbox";
+import { Link } from "react-router-dom";
 
 function Contact() {
   const nameRef = useRef(null);
@@ -10,6 +12,7 @@ function Contact() {
   const formRef = useRef(null);
 
   const [submitting, setSubmitting] = useState(false);
+  const [consentErr, setConsentErr] = useState(false);
 
   const [errFields, setErrFields] = useState({
     name: false,
@@ -91,6 +94,17 @@ function Contact() {
       return;
     }
 
+    // Consent is required before we store anything
+    if (formData.get("consent") !== "on") {
+      setConsentErr(true);
+      setFormMsg({
+        type: "err",
+        text: "Please tick the consent box to continue.",
+      });
+      return;
+    }
+    setConsentErr(false);
+
     // Clear field errors
     setErrFields({
       name: false,
@@ -109,6 +123,7 @@ function Contact() {
         phone,
         service: formData.get("service") || "",
         message,
+        consent: true,
       });
 
       setFormMsg({
@@ -394,6 +409,15 @@ function Contact() {
             />
           </div>
 
+          <ConsentCheckbox id="contact-consent" invalid={consentErr}>
+            I agree that Avtaran Capital may use the details above to respond to
+            my enquiry, as described in the{" "}
+            <Link to="/privacy-policy" target="_blank" className="text-gold-deep font-semibold underline">
+              Privacy Policy
+            </Link>
+            . I can withdraw consent at any time. *
+          </ConsentCheckbox>
+
           {/* Submit */}
           <button
             type="submit"
@@ -402,11 +426,6 @@ function Contact() {
           >
             {submitting ? "Sending..." : "Send Message →"}
           </button>
-
-          <p className="text-[.8rem] text-muted mt-1.5">
-            By submitting, you agree to be contacted by Avtaran Capital. We
-            respect your privacy.
-          </p>
         </form>
       </div>
     </section>
