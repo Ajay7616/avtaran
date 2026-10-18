@@ -96,9 +96,10 @@ function Presence() {
             {INTL_LOCATIONS.map((c) => (
               <div className="intl reveal" key={c.name}>
                 <img
-                  src={`https://flagcdn.com/w80/${c.code}.png`}
+                  src={`/flags/${c.code}.png`}
                   alt={`${c.name} flag`}
                   className="w-10 h-auto object-contain"
+                  loading="lazy"
                 />
 
                 <div>

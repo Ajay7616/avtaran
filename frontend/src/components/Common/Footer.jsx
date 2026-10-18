@@ -1,285 +1,241 @@
 import React from "react";
-import { Link } from "react-router-dom";
-
-// import LOGO_SRC from "../../assets/logo.png";
+import { Link, useNavigate } from "react-router-dom";
 import { NAV_SERVICE_LINKS } from "../../data/data";
 
-function Footer() {
-  const handleSectionClick = (sectionId) => {
-    if (window.location.pathname === "/") {
-      const element = document.getElementById(sectionId);
+const COMPANY_LINKS = [
+  ["About Us", "about"],
+  ["Leadership", "team"],
+  ["Services", "services"],
+  ["Startup Programme", "startup"],
+  ["Our Presence", "presence"],
+  ["Industries", "industries"],
+  ["Career", "career"],
+  ["Contact", "contact"],
+];
 
-      if (element) {
-        element.scrollIntoView({
+const POLICIES = [
+  ["Privacy Policy", "/privacy-policy"],
+  ["Terms of Use", "/terms-of-use"],
+  ["Refund Policy", "/refund-policy"],
+  ["Cookie Policy", "/cookie-policy"],
+];
+
+function Footer() {
+  const navigate = useNavigate();
+
+  const goToSection = (sectionId) => {
+    if (window.location.pathname !== "/") {
+      navigate("/");
+      window.setTimeout(() => {
+        document.getElementById(sectionId)?.scrollIntoView({
           behavior: "smooth",
           block: "start",
         });
-      }
-
-      window.history.replaceState(
-        null,
-        "",
-        `/#${sectionId}`
-      );
+        window.history.replaceState(null, "", `/#${sectionId}`);
+      }, 100);
+      return;
     }
+
+    document.getElementById(sectionId)?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+
+    window.history.replaceState(null, "", `/#${sectionId}`);
   };
 
+  const sectionLinkClass =
+    "block py-1 text-[13px] leading-5 text-slate-600 " +
+    "transition-colors duration-200 hover:text-[#b58a32]";
+
+  const headingClass =
+    "mb-3 text-[11px] font-bold uppercase tracking-[0.16em] " +
+    "text-[#174b45]";
+
   return (
-    <footer className="bg-white text-muted pt-[70px] pb-7.5 border-t border-line">
-      <div className="wrap">
-        <div className="grid grid-cols-[1.6fr_1fr_1fr_1fr] tab:grid-cols-2 mob:grid-cols-1 gap-10 mb-12">
+    <footer className="border-t border-slate-200 bg-white">
+      <div className="mx-auto max-w-7xl px-5 pb-5 pt-10 sm:px-8 sm:pt-12 lg:px-10">
+        {/* MAIN FOOTER */}
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-x-10 lg:grid-cols-[1.4fr_0.8fr_1.15fr_0.8fr] lg:gap-8">
+          {/* BRAND AND CONTACT */}
+          <div className="max-w-sm">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-3"
+              aria-label="Avtaran Capital home"
+            >
+              <img
+                src="favicon.png"
+                alt="Avtaran Capital Advisors"
+                className="h-10 w-auto max-w-[180px] object-contain object-left"
+              />
 
-          {/* COMPANY INFORMATION */}
-          <div>
-            {/* <img
-              src={LOGO_SRC}
-              alt="Avtaran Capital"
-              className="h-13 mb-4"
-            />
-
-            <p className="text-[.9rem] max-w-[280px] leading-relaxed">
-              Strategic finance, Virtual CFO and capital advisory for
-              ambitious businesses—across India and global markets.
+              <span className="leading-tight">
+                <span className="block text-[17px] font-bold tracking-[0.12em] text-[#174b45]">
+                  AVTARAN
+                </span>
+                <span className="mt-1 block text-[9px] font-semibold tracking-[0.2em] text-[#a47b28]">
+                  CAPITAL ADVISORS
+                </span>
+              </span>
+            </Link>
+{/* 
+            <p className="mt-3 max-w-xs text-[13px] leading-[1.8] text-slate-600">
+              Strategic finance, Virtual CFO and capital advisory for ambitious
+              businesses across India and global markets.
             </p> */}
 
-            <p className="text-[.86rem] text-muted leading-relaxed">
-              AVTARAN Capital Advisors Pvt. Ltd.
-              <br />
-              Office No. 301, Kamla Hub, N S Road No. 1,
-              <br />
-              Beside Aromas Cafe, Near Criti Care Hospital,
-              <br />
-              JVPD Scheme, Juhu, Vile Parle (West),
-              <br />
-              Mumbai 400049
-              <br />
+            <address className="mt-4 space-y-1 not-italic text-[12px] leading-[1.7] text-slate-600">
+              <p className="font-semibold text-slate-800">
+                AVTARAN Capital Advisors Pvt. Ltd.
+              </p>
+              <p>
+                Office No. 301, Kamla Hub, N S Road No. 1, Beside Aromas Cafe,
+                Near Criti Care Hospital, JVPD Scheme, Juhu, Vile Parle (West),
+                Mumbai 400049
+              </p>
 
-              <a
-                href="tel:+919833395565"
-                className="text-teal-800 font-semibold"
-              >
-                +91 98333 95565
-              </a>
-
-              {" "}&middot;{" "}
-
-              <a
-                href="mailto:hck@avtaran.com"
-                className="text-teal-800 font-semibold"
-              >
-                hck@avtaran.com
-              </a>
-            </p>
+              <p className="flex flex-wrap gap-x-2 gap-y-1 pt-1">
+                <a
+                  href="tel:+919833395565"
+                  className="font-semibold text-[#174b45] hover:text-[#a47b28]"
+                >
+                  +91 98333 95565
+                </a>
+                <span aria-hidden="true">·</span>
+                <a
+                  href="mailto:hck@avtaran.com"
+                  className="break-all font-semibold text-[#174b45] hover:text-[#a47b28]"
+                >
+                  hck@avtaran.com
+                </a>
+              </p>
+            </address>
 
             {/* SOCIAL LINKS */}
-            <div className="flex gap-2.5 mt-4.5">
-
-              {/* LinkedIn */}
-              <button
-                type="button"
+            <div className="mt-4 flex items-center gap-2">
+              <a
+                href="https://www.linkedin.com/company/avtaran-capital-advisors-pvt-ltd"
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label="LinkedIn"
-                className="foot-social-link"
-                onClick={() => window.open("https://www.linkedin.com/company/avtaran-capital-advisors-pvt-ltd", "_blank", "noopener,noreferrer")} 
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-[#174b45] transition hover:border-[#174b45] hover:bg-[#174b45] hover:text-white"
               >
                 <svg
-                  width="18"
                   viewBox="0 0 24 24"
+                  className="h-4 w-4"
                   fill="currentColor"
                   aria-hidden="true"
                 >
                   <path d="M4.98 3.5a2.5 2.5 0 11-.02 5 2.5 2.5 0 01.02-5zM3 9h4v12H3zM10 9h3.8v1.7h.05c.53-1 1.83-2.05 3.76-2.05 4 0 4.74 2.64 4.74 6.07V21H18.5v-5.3c0-1.26-.02-2.9-1.77-2.9-1.77 0-2.04 1.38-2.04 2.8V21H10z" />
                 </svg>
-              </button>
-
-              {/* X / TWITTER */}
-              <button
-                type="button"
-                aria-label="Twitter"
-                className="foot-social-link"
-                onClick={() => {
-                  // Add official X/Twitter URL when available
-                }}
-              >
-                <svg
-                  width="18"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path d="M18.9 2H22l-7 8 8.2 12h-6.4l-5-7.3L6 22H2.8l7.5-8.6L2.4 2h6.6l4.5 6.7zM17.8 20h1.7L8.3 4H6.5z" />
-                </svg>
-              </button>
-
-              {/* INSTAGRAM */}
-              <button
-                type="button"
-                aria-label="Instagram"
-                className="foot-social-link"
-                onClick={() => {
-                  // Add official Instagram URL when available
-                }}
-              >
-                <svg
-                  width="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  aria-hidden="true"
-                >
-                  <rect
-                    x="3"
-                    y="3"
-                    width="18"
-                    height="18"
-                    rx="5"
-                  />
-                  <circle cx="12" cy="12" r="4" />
-                  <circle
-                    cx="17"
-                    cy="7"
-                    r="1"
-                    fill="currentColor"
-                  />
-                </svg>
-              </button>
-
+              </a>
             </div>
           </div>
 
-          {/* COMPANY */}
-          <div>
-            <h5 className="text-teal-900 font-sans text-[.82rem] uppercase tracking-wide mb-4 font-semibold">
-              Company
-            </h5>
+          {/* COMPANY LINKS */}
+          <nav aria-label="Company navigation">
+            <h2 className={headingClass}>Company</h2>
 
-            <a
-              href="/#about"
-              className="foot-link"
-              onClick={() => handleSectionClick("about")}
-            >
-              About Us
-            </a>
-
-            <a
-              href="/#team"
-              className="foot-link"
-              onClick={() => handleSectionClick("team")}
-            >
-              Leadership
-            </a>
-
-            <a
-              href="/#services"
-              className="foot-link"
-              onClick={() => handleSectionClick("services")}
-            >
-              Services
-            </a>
-
-            <a
-              href="/#startup"
-              className="foot-link"
-              onClick={() => handleSectionClick("startup")}
-            >
-              Startup Programme
-            </a>
-
-            <a
-              href="/#presence"
-              className="foot-link"
-              onClick={() => handleSectionClick("presence")}
-            >
-              Our Presence
-            </a>
-
-            <a
-              href="/#contact"
-              className="foot-link"
-              onClick={() => handleSectionClick("contact")}
-            >
-              Contact
-            </a>
-
-            <a
-              href="/#career"
-              className="foot-link"
-              onClick={() => handleSectionClick("career")}
-            >
-              Career
-            </a>
-          </div>
+            <ul className="space-y-1">
+              {COMPANY_LINKS.map(([label, id]) => (
+                <li key={id}>
+                  <a
+                    href={`/#${id}`}
+                    className={sectionLinkClass}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      goToSection(id);
+                    }}
+                  >
+                    {label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
 
           {/* SERVICES */}
+          <nav aria-label="Services navigation">
+            <h2 className={headingClass}>Our Services</h2>
+
+            <ul className="space-y-1">
+              {NAV_SERVICE_LINKS.map((service) => (
+                <li key={service.href}>
+                  <Link to={service.href} className={sectionLinkClass}>
+                    {service.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          {/* PRESENCE AND CONTACT CTA */}
           <div>
-            <h5 className="text-teal-900 font-sans text-[.82rem] uppercase tracking-wide mb-4 font-semibold">
-              Services
-            </h5>
+            <h2 className={headingClass}>Our Presence</h2>
 
-            {NAV_SERVICE_LINKS.map((service) => (
-              <Link
-                key={service.href}
-                to={service.href}
-                className="foot-link"
-              >
-                {service.title}
-              </Link>
-            ))}
-          </div>
-
-          {/* PRESENCE */}
-          <div>
-            <h5 className="text-teal-900 font-sans text-[.82rem] uppercase tracking-wide mb-4 font-semibold">
-              Presence
-            </h5>
-
-            <a
-              href="/#presence"
-              className="foot-link"
-              onClick={() => handleSectionClick("presence")}
-            >
-              India Presence
-            </a>
-
-            <a
-              href="/#presence"
-              className="foot-link"
-              onClick={() => handleSectionClick("presence")}
-            >
-              Global Presence
-            </a>
-
-            <a
-              href="/#industries"
-              className="foot-link"
-              onClick={() => handleSectionClick("industries")}
-            >
-              Industries
-            </a>
+            <ul className="space-y-1">
+              {[
+                ["India Presence", "presence"],
+                ["Global Presence", "presence"],
+                ["Industries", "industries"],
+              ].map(([label, id], index) => (
+                <li key={`${label}-${index}`}>
+                  <a
+                    href={`/#${id}`}
+                    className={sectionLinkClass}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      goToSection(id);
+                    }}
+                  >
+                    {label}
+                  </a>
+                </li>
+              ))}
+            </ul>
 
             <a
               href="/#contact"
-              className="foot-link"
-              onClick={() => handleSectionClick("contact")}
+              onClick={(event) => {
+                event.preventDefault();
+                goToSection("contact");
+              }}
+              className="mt-4 inline-flex items-center gap-2 rounded-md bg-[#c99a2e] px-4 py-2.5 text-xs font-semibold text-[#123e3a] transition duration-200 hover:bg-[#b58a25] focus:outline-none focus:ring-2 focus:ring-[#c99a2e] focus:ring-offset-2"
             >
               Book a Call
+              <span aria-hidden="true">↗</span>
             </a>
           </div>
         </div>
 
-        {/* BOTTOM FOOTER */}
-        <div className="border-t border-line pt-6 flex justify-between flex-wrap gap-3 text-[.84rem]">
-          <span>
-            &copy; 2026 Avtaran Capital. All rights reserved.
-          </span>
+        {/* BOTTOM BAR */}
+        <div className="mt-8 flex flex-col gap-3 border-t border-slate-200 pt-4 text-[11px] leading-5 text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+          <p>
+            © {new Date().getFullYear()} Avtaran Capital. All rights reserved.
+          </p>
 
-          <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            <a href="https://www.avtaran.com">www.avtaran.com</a>
-            <Link to="/privacy-policy" className="hover:text-gold-deep">Privacy Policy</Link>
-            <Link to="/terms-of-use" className="hover:text-gold-deep">Terms of Use</Link>
-            <Link to="/refund-policy" className="hover:text-gold-deep">Refund Policy</Link>
-            <Link to="/cookie-policy" className="hover:text-gold-deep">Cookie Policy</Link>
-          </span>
+          <nav
+            aria-label="Legal navigation"
+            className="flex flex-wrap gap-x-4 gap-y-1"
+          >
+            {POLICIES.map(([label, path]) => (
+              <Link
+                key={path}
+                to={path}
+                className="transition hover:text-[#a47b28]"
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
+
+          <a
+            href="https://www.avtaran.com"
+            className="transition hover:text-[#174b45]"
+          >
+            avtaran.com
+          </a>
         </div>
       </div>
     </footer>
