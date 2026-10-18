@@ -65,7 +65,7 @@ function Footer() {
               aria-label="Avtaran Capital home"
             >
               <img
-                src="favicon.png"
+                src="/favicon.png"
                 alt="Avtaran Capital Advisors"
                 className="h-10 w-auto max-w-[180px] object-contain object-left"
               />
