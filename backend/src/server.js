@@ -61,6 +61,18 @@ app.use((req, res, next) => {
 });
 
 // ==============================
+// HEALTH CHECK
+// ==============================
+// Deliberately left unencrypted — uptime monitors, load balancers, etc.
+// expect plain JSON here.
+app.get("/", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Avtaran Capital API is running",
+  });
+});
+
+// ==============================
 // CORS
 // ==============================
 
@@ -176,18 +188,6 @@ const loginLimiter = rateLimit({
     success: false,
     message: "Too many login attempts. Please try again later.",
   },
-});
-
-// ==============================
-// HEALTH CHECK
-// ==============================
-// Deliberately left unencrypted — uptime monitors, load balancers, etc.
-// expect plain JSON here.
-app.get("/", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "Avtaran Capital API is running",
-  });
 });
 
 // ==============================

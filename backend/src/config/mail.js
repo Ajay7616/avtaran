@@ -15,29 +15,29 @@ const transporter = nodemailer.createTransport({
   socketTimeout: 20000,
 });
 
-const sendEmail = async ({ to, subject, html, attachments = [] }) => {
-  try {
-    const info = await transporter.sendMail({
-      from: `"Avtaran Capital" <${process.env.SMTP_USER}>`,
-      to,
-      subject,
-      html,
-      attachments,
-    });
+// const sendEmail = async ({ to, subject, html, attachments = [] }) => {
+//   try {
+//     const info = await transporter.sendMail({
+//       from: `"Avtaran Capital" <${process.env.SMTP_USER}>`,
+//       to,
+//       subject,
+//       html,
+//       attachments,
+//     });
 
-    console.log("Email sent:", info.messageId);
+//     console.log("Email sent:", info.messageId);
 
-    return info;
-  } catch (error) {
-    console.error("Email sending failed:", {
-      code: error.code,
-      command: error.command,
-      message: error.message,
-    });
+//     return info;
+//   } catch (error) {
+//     console.error("Email sending failed:", {
+//       code: error.code,
+//       command: error.command,
+//       message: error.message,
+//     });
 
-    throw error;
-  }
-};
+//     throw error;
+//   }
+// };
 
 const verifyEmailConnection = async () => {
   try {
@@ -54,52 +54,52 @@ const verifyEmailConnection = async () => {
 
 verifyEmailConnection();
 
-module.exports = {
-  sendEmail,
-};
-
-// const { Resend } = require("resend");
-
-// if (!process.env.RESEND_API_KEY) {
-//   console.error("❌ RESEND_API_KEY is missing");
-// }
-
-// const resend = new Resend(process.env.RESEND_API_KEY);
-
-// const sendEmail = async ({
-//   to,
-//   subject,
-//   html,
-//   attachments = [],
-// }) => {
-//   try {
-//     const { data, error } = await resend.emails.send({
-//       from: "Avtaran Capital <onboarding@resend.dev>",
-//       to,
-//       subject,
-//       html,
-//       attachments,
-//     });
-
-//     if (error) {
-//       console.error("❌ Resend error:", error);
-//       throw error;
-//     }
-
-//     console.log("✅ Email sent:", data?.id);
-
-//     return data;
-//   } catch (error) {
-//     console.error("❌ Email sending failed:", {
-//       message: error.message,
-//       name: error.name,
-//       statusCode: error.statusCode,
-//     });
-
-//     throw error;
-//   }
-// };
-
 // module.exports = {
 //   sendEmail,
 // };
+
+const { Resend } = require("resend");
+
+if (!process.env.RESEND_API_KEY) {
+  console.error("❌ RESEND_API_KEY is missing");
+}
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+const sendEmail = async ({
+  to,
+  subject,
+  html,
+  attachments = [],
+}) => {
+  try {
+    const { data, error } = await resend.emails.send({
+      from: "Avtaran Capital <onboarding@resend.dev>",
+      to,
+      subject,
+      html,
+      attachments,
+    });
+
+    if (error) {
+      console.error("❌ Resend error:", error);
+      throw error;
+    }
+
+    console.log("✅ Email sent:", data?.id);
+
+    return data;
+  } catch (error) {
+    console.error("❌ Email sending failed:", {
+      message: error.message,
+      name: error.name,
+      statusCode: error.statusCode,
+    });
+
+    throw error;
+  }
+};
+
+module.exports = {
+  sendEmail,
+};
